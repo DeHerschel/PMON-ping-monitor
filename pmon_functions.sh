@@ -21,8 +21,11 @@ function validmac() { #valid mac?
 
 function scan() {
 	mac="$1";
-	ip=$(cat scan | grep "$mac" | awk '{print $1}');
-	ip_comp=$(cat scan | grep "$mac" | awk '{print $1}' | wc -l);
+	ip=$(echo "$scan" | grep "$mac" | awk '{print $1}');
+	echo $ip
+	ip_comp=$(echo "$scan" | grep "$mac" | awk '{print $1}' | wc -l);
+	echo $ip_comp
+	echo $scan
 	if  [ $ip_comp == 0 ]; then #Not in arp table
 		echo -e "\n\n\e[101;1;97m########## IP NOT FOUND FOR $1 ##########\e[0m\n\n";
 	else

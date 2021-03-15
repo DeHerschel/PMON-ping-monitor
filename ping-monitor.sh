@@ -35,9 +35,9 @@ for arg in $@; do
 	c=$((c+1))
 done
 if [[ $ifc ]]; then #selected IFCE
-	arp-scan -l -I $ifc > scan
+	scan=$(arp-scan -l -I $ifc)
 else # default IFACE
-	arp-scan -l > scan
+	scan=$(arp-scan -l)
 fi
 for mc in ${macs[@]}; do
 	scan "$mc"
