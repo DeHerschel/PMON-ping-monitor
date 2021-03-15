@@ -3,6 +3,7 @@
 #######################
 #   GLOBAL VARIABLES  #
 #######################
+source messages.sh
 LOG="event.log";
 DATE="$(date)";
 declare -A ips; #Asociative array ips[mac-->IP, mac-->IP,...]
@@ -10,12 +11,7 @@ declare -A ips; #Asociative array ips[mac-->IP, mac-->IP,...]
 #######################
 #      FUNCTIONS      #
 #######################
-function isroot(){ #root?
-	if [ "$EUID" -ne 0 ]; then
-		echo -e "\n\n\e[101;1;97m ######ERROR!!! NOT ROOT. EXECUTE AS ROOT###### \e[0m\n\n";
-		exit
-	fi
-}
+
 function validmac() { #valid mac?
 	echo "$1" | egrep "^^([a-fA-F0-9]{2}:){5}([a-fA-F0-9]{2})$"  > /dev/null
 	if [ "$?" == 1 ]; then
@@ -25,13 +21,8 @@ function validmac() { #valid mac?
 
 function scan() {
 	mac="$1";
-	if ! [ "$ifc" ]; then #default interface
-		ip=$(arp-scan -l | grep "$mac" | awk '{print $1}');
-		ip_comp=$(arp-scan -l | grep "$mac" | awk '{print $1}' | wc -l);
-	else  #selected interface
-		ip=$(arp-scan -l -I "$ifc" | grep "$mac" | awk '{print $1}');
-		ip_comp=$(arp-scan -l -I "$ifc" | grep "$mac" | awk '{print $1}' | wc -l);
-	fi
+	ip=$(cat scan | grep "$mac" | awk '{print $1}');
+	ip_comp=$(cat scan | grep "$mac" | awk '{print $1}' | wc -l);
 	if  [ $ip_comp == 0 ]; then #Not in arp table
 		echo -e "\n\n\e[101;1;97m########## IP NOT FOUND FOR $1 ##########\e[0m\n\n";
 	else
@@ -80,7 +71,8 @@ function ping_ip() {
 				echo "$line";
 			fi
 		fi
-		done
+		done &
+		pingpids=(${pingpids[@]} $!)
 	else #default iface
 		aae=0; #alive after errors
 		ping -O "${ips[$1]}" | while read -r line; do
@@ -119,7 +111,8 @@ function ping_ip() {
 				echo "$line";
 			fi
 		fi
-		done
+		done &
+		pingpids=(${pingpids[@]} $!)
 	fi
 }
 function view-log() {
@@ -159,7 +152,7 @@ function listening_() { #exit?
 	while true; do
 		read -rsn1 option;
 		if [[ "$option" == "" ]] || [[ "$option" == "q" ]]; then
-			pkill ping-monitor && pkill pmon_functions;
+			kill ${pingpids[@]}
 			exit
 		elif [[ "$option" == "l" ]]; then
 			tmux new-session -d -s pmon
