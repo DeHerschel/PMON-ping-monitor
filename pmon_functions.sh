@@ -12,7 +12,7 @@ declare -A ips; #Asociative array ips[mac-->IP, mac-->IP,...]
 #      FUNCTIONS      #
 #######################
 
-function validmac() { #valid mac?
+function validMac() { #valid mac?
 	echo "$1" | egrep "^^([a-fA-F0-9]{2}:){5}([a-fA-F0-9]{2})$"  > /dev/null
 	if [ "$?" == 1 ]; then
 			return 1;
@@ -22,17 +22,15 @@ function validmac() { #valid mac?
 function scan() {
 	mac="$1";
 	ip=$(echo "$scan" | grep "$mac" | awk '{print $1}');
-	echo $ip
 	ip_comp=$(echo "$scan" | grep "$mac" | awk '{print $1}' | wc -l);
-	echo $ip_comp
-	echo $scan
 	if  [ $ip_comp == 0 ]; then #Not in arp table
 		echo -e "\n\n\e[101;1;97m########## IP NOT FOUND FOR $1 ##########\e[0m\n\n";
 	else
 		ips[$mac]="$ip";
 	fi
 }
-function ping_ip() {
+function pingIp() {
+	scan $1
 	if [[ "${ips[$1]}" == "" ]]; then #no ip from mac
 		return;
 	elif [ "$ifc" ]; then #selected iface
