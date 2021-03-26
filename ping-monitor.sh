@@ -80,6 +80,5 @@ function main() {
 	for mc in ${macs[@]}; do
 		pingIp "$mc";
 	done
-	listening_
 }
 main $@
