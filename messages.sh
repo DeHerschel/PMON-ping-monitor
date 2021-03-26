@@ -5,14 +5,14 @@
 ################################
 
 
-IpNotFound_m="########## IP NOT FOUND FOR ${1} ##########"
 NoIfc_msg="error. No such interface"
 InvalidMac_m="mac is invalid!"
-ErrorMode_m="WARNING! THE HOST IS DOWN OR REFUSING THE PING STARTING ERROR MODE"
-HostStable_m="HOST IS STABLE. ENDING ERROR MODE"
-Warning_m="WARNING: "
-HostUp_m="HOST IS UP"
+hostdown_msg="WARNING! THE HOST IS DOWN OR REFUSING THE PING STARTING ERROR MODE"
+hostsatble_msg="HOST IS STABLE. ENDING ERROR MODE"
 
+ipNotFoundMsg() {
+	echo "########## IP NOT FOUND FOR ${1} ##########"
+}
 usageMsg() {
 	echo "	
 Usage: pmon [options] [MAC(s)]

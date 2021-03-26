@@ -3,10 +3,11 @@
 #######################
 #   GLOBAL VARIABLES  #
 #######################
+
 source messages.sh
+declare -A ips; #Asociative array ips[mac-->IP, mac-->IP,...]
 LOG="event.log";
 DATE="$(date)";
-declare -A ips; #Asociative array ips[mac-->IP, mac-->IP,...]
 
 #######################
 #      FUNCTIONS      #
@@ -18,103 +19,88 @@ function validMac() { #valid mac?
 			return 1;
 	fi
 }
-
-function scan() {
+function macHaveIp() {
 	mac="$1";
 	ip=$(echo "$scan" | grep "$mac" | awk '{print $1}');
 	ip_comp=$(echo "$scan" | grep "$mac" | awk '{print $1}' | wc -l);
 	if  [ $ip_comp == 0 ]; then #Not in arp table
-		echo -e "\n\n\e[101;1;97m########## IP NOT FOUND FOR $1 ##########\e[0m\n\n";
-	else
-		ips[$mac]="$ip";
+		ipNotFoundMsg;
+		return 2;
 	fi
+	ips[$mac]="$ip";
 }
 function pingIp() {
-	scan $1
-	if [[ "${ips[$1]}" == "" ]]; then #no ip from mac
-		return;
-	elif [ "$ifc" ]; then #selected iface
+	macHaveIp $1 || return;
+	if [ "$ifc" ]; then #selected iface
 		aae=0; #alive after errors
 		ping -O "${ips[$1]}" -I "$ifc" | while read -r line; do #ping and read lines
-		#no answer ---> eroor mode ---> alert & log
-		echo -e "\n${ips[$1]}: ";
-		if [[ "$line" =~ "Unreachable" ]] || [[ "$line" =~ "no answer" ]]; then
-			if [[ "$errormode" == 1 ]]; then
-				echo -e " \e[101;1;97m WARNING: $line\e[m";
-			else
-				echo -e "\e[101;1;97m$line\e[m";
-				echo -e "\e[101;1;97m$date $line\e[m" >> "$LOG";
-				echo -e "\n\e[101;1;97mWARNING! THE HOST IS DOWN OR REFUSING THE PING STARTING ERROR MODE\e[m\n";
-				echo -e "\n\e[101;1;97m$date WARNING! THE HOST IS DOWN OR REFUSING THE PING STARTING ERROR MODE\e[m\n" >> "$LOG"
-				errormode=1;
-			fi
-		else #good answer
-			#error mode ---> alert & log
-			if [[ $errormode == 1 ]]; then
-				aae=$((aae+1)); #count alive after error
-				if [ "$aae" == 30 ]; then #30 good ping after error ends error mode
-					echo -e "\e[42;1;97m$line\e[m";
-					echo -e "\e[42;1;97m$date $line\e[m" >> "$LOG"
-					echo -e "\n\e[42;1;97mHOST IS STABLE. ENDING ERROR MODE\e[m\n";
-					echo -e "\n\e[42;1;97m$date HOST IS STABLE. ENDING ERROR MODE\e[m\n" >> "$LOG"
-					aae=0; #reset AAE
-					errormode=0;
-				elif [ "$aae" == 1 ]; then #first good ping after error
-					echo -e "\e[42;1;97m$line\e[m";
-					echo -e "\e[42;1;97m$date $line\e[m" >> "$LOG"
-					echo -e "\n\e[42;1;97m$date HOST IS UP\e[m\n";
-					echo -e "\n\e[42;1;97m$date HOST IS UP\e[m\n" >> "$LOG"
+			#no answer ---> eroor mode ---> alert & log
+			echo -e "\n${ips[$1]}: ";
+			if [[ "$line" =~ "Unreachable" ]] || [[ "$line" =~ "no answer" ]]; then
+				if [[ "$errormode" == 1 ]]; then
+					echo -e " \e[101;1;97m WARNING: $line\e[m";
 				else
-					echo -e "\e[42;1;97m$line\e[m";
-					echo -e "\e[42;1;97m$date $line\e[m" >> "$LOG"
+					echo -e "\e[101;1;97m$line\e[m" && echo -e "${DATE}: ${line}" >> "$LOG";
+					echo -e "\n\e[101;1;97m${hostdown_msg}\e[m\n" && echo -e "${DATE}: ${hostdown_msg}" >> "$LOG";
+					errormode=1;
 				fi
-			else #no error
-				echo "$line";
+			else #good answer
+				#error mode ---> alert & log
+				if [[ $errormode == 1 ]]; then
+					let aae=aae+1; #count aae
+					if [ "$aae" == 30 ]; then #30 good ping after error ends error mode
+						echo -e "\e[42;1;97m${line}\e[m" && echo -e "${DATE}: ${line}" >> "$LOG";
+						echo -e "\n\e[42;1;97m${hoststable_msg}\e[m\n" && echo -e "${DATE}: ${hoststable_msg}" >> "$LOG";
+						aae=0; #reset AAE
+						errormode=0;
+					elif [ "$aae" == 1 ]; then #first good ping after error
+						echo -e "\e[42;1;97m${line}\e[m" && echo -e "${DATE}: ${line}" >> "$LOG";
+						echo -e "\n\e[42;1;97m${DATE} HOST IS UP\e[m\n" && echo -e "${DATE} HOST IS UP" >> "$LOG"
+					else
+						echo -e "\e[42;1;97m${line}\e[m";
+					fi
+				else #no error
+					echo "$line";
+				fi
 			fi
-		fi
 		done &
 		pingpids=(${pingpids[@]} $!)
 	else #default iface
 		aae=0; #alive after errors
-		ping -O "${ips[$1]}" | while read -r line; do
-		echo -e "\n${ips[$1]}: ";
-		if [[ "$line" =~ "Unreachable" ]] || [[ "$line" =~ "no answer" ]]; then
-			if [[ "$errormode" == 1 ]]; then
-				echo -e " \e[101;1;97m WARNING: $line\e[m";
-			else
-				echo -e "\e[101;1;97m$line\e[m";
-				echo -e "\e[101;1;97m$date $line\e[m" >> "$LOG"
-				echo -e "\n\e[101;1;97mWARNING! THE HOST IS DOWN OR REFUSING THE PING STARTING ERROR MODE\e[m\n";
-				echo -e "\n\e[101;1;97m$date WARNING! THE HOST IS DOWN OR REFUSING THE PING STARTING ERROR MODE\e[m\n" >> "$LOG"
-				errormode=1;
-			fi
-		else #good answer
-			#error mode ---> alert & log
-			if [[ "$errormode" == 1 ]]; then
-				aae=$((aae+1)) #count alive after error
-				if [ "$aae" == 30 ]; then #30 good ping after error ends error mode
-					echo -e "\e[42;1;97m$line\e[m";
-					echo -e "\e[42;1;97m$date $line\e[m" >> "$LOG"
-					echo -e "\n\e[42;1;97mHOST IS STABLE. ENDING ERROR MODE\e[m\n";
-					echo -e "\n\e[42;1;97m$date HOST IS STABLE. ENDING ERROR MODE\e[m\n" >> "$LOG"
-					aae=0; #reset AAE
-					errormode=0;
-				elif [ "$aae" == 1 ]; then #first good ping after error
-					echo -e "\e[42;1;97m$line\e[m";
-					echo -e "\e[42;1;97m$date $line\e[m" >> "$LOG"
-					echo -e "\n\e[42;1;97m$date HOST IS UP\e[m\n";
-					echo -e "\n\e[42;1;97m$date HOST IS UP\e[m\n" >> "$LOG"
+		ping -O "${ips[$1]}" | while read -r line; do #ping and read lines
+			#no answer ---> eroor mode ---> alert & log
+			echo -e "\n${ips[$1]}: ";
+			if [[ "$line" =~ "Unreachable" ]] || [[ "$line" =~ "no answer" ]]; then
+				if [[ "$errormode" == 1 ]]; then
+					echo -e " \e[101;1;97m WARNING: $line\e[m";
 				else
-					echo -e "\e[42;1;97m$line\e[m";
-					echo -e "\e[42;1;97m$date $line\e[m" >> "$LOG"
+					echo -e "\e[101;1;97m$line\e[m" && echo -e "${DATE}: ${line}" >> "$LOG";
+					echo -e "\n\e[101;1;97m${hostdown_msg}\e[m\n" && echo -e "${DATE}: ${hostdown_msg}" >> "$LOG";
+					errormode=1;
 				fi
-			else #no error
-				echo "$line";
+			else #good answer
+				#error mode ---> alert & log
+				if [[ $errormode == 1 ]]; then
+					let aae=aae+1; #count aae
+					if [ "$aae" == 30 ]; then #30 good ping after error ends error mode
+						echo -e "\e[42;1;97m${line}\e[m" && echo -e "${DATE}: ${line}" >> "$LOG";
+						echo -e "\n\e[42;1;97m${hoststable_msg}\e[m\n" && echo -e "${DATE}: ${hoststable_msg}" >> "$LOG";
+						aae=0; #reset AAE
+						errormode=0;
+					elif [ "$aae" == 1 ]; then #first good ping after error
+						echo -e "\e[42;1;97m${line}\e[m" && echo -e "${DATE}: ${line}" >> "$LOG";
+						echo -e "\n\e[42;1;97m${DATE} HOST IS UP\e[m\n" && echo -e "${DATE} HOST IS UP" >> "$LOG"
+					else
+						echo -e "\e[42;1;97m${line}\e[m";
+					fi
+				else #no error
+					echo "$line";
+				fi
 			fi
-		fi
 		done &
 		pingpids=(${pingpids[@]} $!)
 	fi
+	listening_
 }
 function view-log() {
 	echo "
@@ -130,23 +116,17 @@ function view-log() {
 	read -rn1 editor
 	case $editor in
 		1)
-			nano "$LOG"
-			;;
+			nano "$LOG";;
 		2)
-			vi "$LOG"
-			;;
+			vi "$LOG";;
 		3)
-			vim "$LOG"
-			;;
+			vim "$LOG";;
 		4)
-		 	gedit "$LOG"
-			;;
+		 	gedit "$LOG";;
 		5)
-			emacs "$LOG"
-			;;
+			emacs "$LOG";;
 		*)
-			nano "$LOG"
-			;;
+			nano "$LOG";;
 	esac
 }
 function listening_() { #exit?
