@@ -16,13 +16,13 @@ ipNotFoundMsg() {
 usageMsg() {
 	echo "	
 Usage: pmon [options] [MAC(s)] OR pmon [options] -t [HOST]
-		
+
 Run pmon -h or pmon --help to view more information
 			";
 	exit 2;
 }
 helpMsg() {
-	echo "Usage: pmon [options] [MAC(s)]
+	echo "Usage: pmon [options] [MAC(s)] OR pmon [options] -t [HOST]
 
 Options:
 	-I			Interface to use
@@ -38,6 +38,7 @@ norootMsg() {
 }
 verbosityError() {
 	echo "Error: verbosity mode need a number between 0 and 5";
+	usageMsg;
 }
 nomac_msg() {
 	echo "Error: No MAC(s) introduced"
