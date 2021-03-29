@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 source pmon_functions.sh
 source messages.sh
-
 unset targetopt;
 unset IFC;
 unset VERBOSE;
