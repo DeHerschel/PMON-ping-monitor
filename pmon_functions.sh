@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 source messages.sh
 unset HOST
-LOG="event.log";
+LOG="/var/log/pmon.log";
 DATE="$(date)";
+ERRLOG="/var/log/pmon.err.log"
 
 #######################
 #      FUNCTIONS      #
@@ -16,7 +17,7 @@ function macHaveIp() {
 	local ip=$(echo "$scan" | grep "$1" | awk '{print $1}');
 	local ip_comp=$(echo "$scan" | grep "$1" | awk '{print $1}' | wc -l);
 	if  [ $ip_comp == 0 ]; then #Not in arp table
-		ipNotFoundMsg;
+		ipNotFoundMsg && ipNotFoundMsg >> $ERRLOG;
 		return 2;
 	fi
 	echo $ip;
@@ -27,7 +28,7 @@ function pingHost() { #ARGS: "mac"/"host" MAC/HOST IFC
 	[[ $IFC ]] && local ifc="-I $IFC"; 
 	if [[ "$1" == "mac" ]]; then
 		HOST=$(macHaveIp "$2") || return;
-	elif [[ "$1" == "host"]]; then
+	elif [[ "$1" == "host" ]]; then
 		HOST="$2";
 	fi
 	ping -O $HOST $ifc | while read -r line; do #ping and read lines
@@ -94,8 +95,8 @@ function keyEventListener() {
 	while true; do
 		read -rsn1 option;
 		if [[ "$option" == "" ]] || [[ "$option" == "q" ]]; then
-			kill ${pingpids[@]}
-			exit
+			kill "${pingpids[@]}";
+			exit 0;
 		elif [[ "$option" == "l" ]]; then
 			tmux new-session -d -s pmon
 			tmux send-keys "source pmon_functions.sh" C-m

@@ -38,11 +38,11 @@ function argParse() {
 				IFC="$1";;
 			-v)
 				shift
-				[[ "$1" =~ [0-5] ]] || verbosityError; usageMsg
+				[[ "$1" =~ [0-5] ]] || verbosityError;
 				VERBOSE=$1;;
 			--verbosity)
 				shift;
-				[[ $1 =~ [0-5] ]] || verbosityError
+				[[ $1 =~ [0-5] ]] || verbosityError;
 				VERBOSE=$1;;
 			--no-screen)
 				;;	
@@ -84,16 +84,21 @@ function argParse() {
 function main() {
 	argParse "$@";
 	isRoot;
-	echo $IFC
-	if [[ $targetopt ]]; then
+	if [[ "$targetopt" ]]; then
 		for target in ${TARGETS[@]}; do
 			pingHost "host" "$target" "$IFC"
 		done;
 	else
 		#selected IFCE
-		[[ $IFC ]] && scan=$(arp-scan -l -I $IFC);
+		[[ $IFC ]] && {
+			echo "Scanning arp table...";
+			scan=$(arp-scan -l -I $IFC);
+		}
 		# default IFACE
-		[[ ! $IFC ]] && scan=$(arp-scan -l);
+		[[ ! $IFC ]] && {
+			echo "Scanning arp table..."
+			scan=$(arp-scan -l);
+		}
 		for mac in ${MACS[@]}; do
 			pingHost "mac" "$mac" "$IFC";
 		done
