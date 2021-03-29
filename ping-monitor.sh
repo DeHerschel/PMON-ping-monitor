@@ -2,9 +2,11 @@
 source pmon_functions.sh
 source messages.sh
 
+unset targetopt;
 unset IFC;
 unset VERBOSE;
-
+unset TARGETS;
+unset MACS;
 
 
 function isRoot() {
@@ -20,18 +22,16 @@ function isIfc() {
 		return 0;
 	fi
 }
-function argparse() {
-	options=$(getopt -n pmon -o I:hv: -l no-screen -l verbosity: -l help -- "$@")
+function argParse() {
+	options=$(getopt -n pmon -o I:hv:t: -l no-screen -l verbosity: -l help -- "$@")
 	[ $? -eq 0 ] || exit 2;
 	eval set -- "${options}";
-	[ ${#} -lt 2 ] && { 
-		nomac_msg;
-		usageMsg;
-	}
 	while true; do
 		case "$1" in
 			-h) 
 				helpMsg;;
+			--help) 
+				helpMsg;;	
 			-I)
 				shift
 				isIfc "$1" || exit 2;
@@ -46,39 +46,58 @@ function argparse() {
 				VERBOSE=$1;;
 			--no-screen)
 				;;	
-
-			--help) 
-				helpMsg;;	
+			-t)
+				targetopt=true;
+				shift;
+				TARGETS=("$1");
+				shift && shift;
+				for arg in $@; do
+					TARGETS=("${TARGETS}" "$1")
+					shift;
+				done;
+				break;;
 			--)
-				shift
-				[[ ! $1 ]] && usageMsg
+				[ ${#} -lt 2 ] && { 
+					nomac_msg;
+					usageMsg;
+				}
+				shift;
+				[[ ! $1 ]] && usageMsg;
 				c=0 #count macs in $@
 				for arg in $@; do
 					if ! validMac $arg; then
-						echo -e "${arg}: ${InvalidMac_m}"
+						echo -e "${arg}: ${InvalidMac_m}";
 						exit 2;
 					fi
-					macs[$c]="$arg";
+					MACS[$c]="$arg";
 					let c=c+1;
 				done;
 				break;;
-		esac
-		shift
-	done
+		esac;
+		shift;
+	done;
 }
 #########################
 #       MAIN            #
 #########################
 
 function main() {
-	#isRoot
-	argparse $@;
-	#selected IFCE
-	[[ $IFC ]] && scan=$(arp-scan -l -I $IFC);
-	# default IFACE
-	[[ ! $IFC ]] && scan=$(arp-scan -l);
-	for mc in ${macs[@]}; do
-		pingIp "$mc";
-	done
+	argParse "$@";
+	isRoot;
+	echo $IFC
+	if [[ $targetopt ]]; then
+		for target in ${TARGETS[@]}; do
+			pingHost "host" "$target" "$IFC"
+		done;
+	else
+		#selected IFCE
+		[[ $IFC ]] && scan=$(arp-scan -l -I $IFC);
+		# default IFACE
+		[[ ! $IFC ]] && scan=$(arp-scan -l);
+		for mac in ${MACS[@]}; do
+			pingHost "mac" "$mac" "$IFC";
+		done
+	fi
+	keyEventListener
 }
-main $@
+main $@;

@@ -8,14 +8,14 @@
 NoIfc_msg="error. No such interface"
 InvalidMac_m="mac is invalid!"
 hostdown_msg="WARNING! THE HOST IS DOWN OR REFUSING THE PING STARTING ERROR MODE"
-hostsatble_msg="HOST IS STABLE. ENDING ERROR MODE"
+hoststable_msg="HOST IS STABLE. ENDING ERROR MODE"
 
 ipNotFoundMsg() {
-	echo "########## IP NOT FOUND FOR ${1} ##########"
+	echo -e "########## IP NOT FOUND FOR ${1} ##########\n"
 }
 usageMsg() {
 	echo "	
-Usage: pmon [options] [MAC(s)]
+Usage: pmon [options] [MAC(s)] OR pmon [options] -t [HOST]
 		
 Run pmon -h or pmon --help to view more information
 			";
