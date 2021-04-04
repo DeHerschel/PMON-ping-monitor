@@ -10,21 +10,18 @@
 ### END INIT INFO
 
 dir="/bin/"
-cmd="pmon"
+cmd="pmond"
 user="root"
 name=`basename $0`
 pid_file="/var/run/$name.pid"
 stdout_log="/var/log/$name.log"
 stderr_log="/var/log/$name.err.log"
-
 get_pid() {
     cat "$pid_file"
 }
-
 is_running() {
     [ -f "$pid_file" ] && ps -p `get_pid` > /dev/null 2>&1
 }
-
 case "$1" in
     start)
     if is_running; then
