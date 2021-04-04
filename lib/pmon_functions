@@ -1,5 +1,5 @@
-#!/usr/bin/env bash
-source messages.sh
+#!/bin/bash
+source messages
 unset HOST
 LOG="/var/log/pmon.log";
 DATE="$(date)";
