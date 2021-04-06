@@ -22,14 +22,12 @@ ipNotFoundMsg() {
 usageMsg() {
 	echo "	
 Usage: pmon [options] [MAC(s)] OR pmon [options] -t [HOST]
-
 Run pmon -h or pmon --help to view more information
 			";
 	exit 2;
 }
 helpMsg() {
 	echo "Usage: pmon [options] [MAC(s)] OR pmon [options] -t [HOST]
-
 Options:
 	-I			Interface to use
 	-v --verbosity		Verbosity level [0-5]
@@ -60,4 +58,3 @@ statsMsg() {
 	echo "TTL=$PTTL		ICMP=$PICMP		TIME=$PTIME
 PING STATE: $state 		PROBLEMS: $problems"
 }		
-
