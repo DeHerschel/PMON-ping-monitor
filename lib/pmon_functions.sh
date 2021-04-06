@@ -1,9 +1,17 @@
-#!/usr/bin/env bash
-source messages.sh
-unset HOST
+#!/bin/bash
+
+source lib/messages.sh;
+unset HOST;
+unset PTIME;
+unset PICMP;
+unset PTTL;
+unset LOG;
+unset ERRLOG;
+unset DATE;
+
 LOG="/var/log/pmon.log";
 DATE="$(date)";
-ERRLOG="/var/log/pmon.err.log"
+ERRLOG="/var/log/pmon.err.log";
 
 #######################
 #      FUNCTIONS      #
@@ -22,6 +30,14 @@ function macHaveIp() {
 	fi
 	echo $ip;
 }
+function getStats() {
+	local ping=$1;
+	local ping=($ping)
+	local host=$HOST;
+	PTIME=${ping[6]:5};
+	PTTL=${ping[5]:4};
+	PICMP=${ping[4]:9};
+}
 function pingHost() { #ARGS: "mac"/"host" MAC/HOST IFC
 	local aae=0; #alive after errors
 	local errormode=0;
@@ -31,15 +47,22 @@ function pingHost() { #ARGS: "mac"/"host" MAC/HOST IFC
 	elif [[ "$1" == "host" ]]; then
 		HOST="$2";
 	fi
+	local c=1 #use for display only in the second round of the loop
 	ping -O $HOST $ifc | while read -r line; do #ping and read lines
 		echo -e "${HOST}: ";
+		if [ $c -eq 0 ]; then 
+			getStats "$line"
+			[ "$errormode" -eq 0 ] && statsMsg
+		fi
+		LAST_PICMP=$PICMP;
+		c=0;
 		if [[ "$line" =~ "Unreachable" ]] || [[ "$line" =~ "no answer" ]]; then
 		#no answer ---> eroor mode ---> alert & log
 			[ "$errormode" -eq 1 ] && {	
 				echo -e " \e[101;1;97m WARNING: $line\e[m\n";
 				continue;
 			}
-			echo -e "\n\e[101;1;97m${hostdown_msg}\e[m\n" && echo -e "${DATE}: ${hostdown_msg}" >> "$LOG";
+			hostdownMsg && hostdownMsg "$LOG";
 			echo -e "\e[101;1;97m$line\e[m\n" && echo -e "${DATE}: ${line}" >> "$LOG";
 			errormode=1;
 		else #good answer
@@ -63,7 +86,7 @@ function pingHost() { #ARGS: "mac"/"host" MAC/HOST IFC
 			echo -e "\e[42;1;97m${line}\e[m\n";
 		fi
 	done &
-	pingpids=(${pingpids[@]} $!)
+	pingpids=(${pingpids[@]} $!);
 }
 function viewLog() {
 	echo "

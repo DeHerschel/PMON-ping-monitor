@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
-source lib/pmon_functions.sh
-source lib/messages.sh
-
-
+source ./lib/pmon_functions.sh
+source ./lib/messages.sh
 unset targetopt;
 unset IFC;
 unset VERBOSE;
@@ -45,8 +43,6 @@ function argParse() {
 				shift;
 				[[ $1 =~ [0-5] ]] || verbosityError;
 				VERBOSE=$1;;
-			--no-screen)
-				;;	
 			-t)
 				targetopt=true;
 				shift;
@@ -104,6 +100,6 @@ function main() {
 			pingHost "mac" "$mac" "$IFC";
 		done
 	fi
-	keyEventListener
+	keyEventListener;
 }
 main $@;
