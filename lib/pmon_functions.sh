@@ -17,8 +17,12 @@ ERRLOG="/var/log/pmon.err.log";
 #      FUNCTIONS      #
 #######################
 
-function validMac() { #valid mac?
+function isdMac() { #valid mac?
 	echo "$1" | egrep "^^([a-fA-F0-9]{2}:){5}([a-fA-F0-9]{2})$"  > /dev/null
+	[ "$?" == 0 ] || return 1;
+}
+function isIp() {
+	echo "$1" | egrep "^^(1-255].){3}([1-255])$"  > /dev/null
 	[ "$?" == 0 ] || return 1;
 }
 function macHaveIp() {
@@ -33,18 +37,29 @@ function macHaveIp() {
 function getStats() {
 	local ping=$1;
 	local ping=($ping)
-	local host=$HOST;
-	PTIME=${ping[6]:5};
-	PTTL=${ping[5]:4};
-	PICMP=${ping[4]:9};
+	if [[ TARGET  == 'IP' ]]; then
+		PTIME=${ping[6]:5};
+		PTTL=${ping[5]:4};
+		PICMP=${ping[4]:9};
+	else
+		PTIME=${ping[7]:5};
+		PTTL=${ping[6]:4};
+		PICMP=${ping[5]:9};
+	fi
 }
 function pingHost() { #ARGS: "mac"/"host" MAC/HOST IFC
 	local aae=0; #alive after errors
 	local errormode=0;
 	[[ $IFC ]] && local ifc="-I $IFC"; 
 	if [[ "$1" == "mac" ]]; then
+		TARGET='IP';
 		HOST=$(macHaveIp "$2") || return;
 	elif [[ "$1" == "host" ]]; then
+		if ! isIp; then
+			TARGET='DNS';
+		else 
+			TARGET='IP';
+		fi
 		HOST="$2";
 	fi
 	local isfirst=1 #use for display only in the second round of the loop
@@ -79,7 +94,7 @@ function pingHost() { #ARGS: "mac"/"host" MAC/HOST IFC
 				continue;
 			}
 			[ "$aae" -eq 30 ] && { #30 good ping after error ends error mode
-				echo -e "\n${hoststable_msg}\n" && echo -e "${DATE}: ${hoststable_msg}" >> "$LOG";
+				hoststableMsg && hoststable_msg >> "$LOG";
 				echo -e "${line}\n" && echo -e "${DATE}: ${line}" >> "$LOG";
 				aae=0; #reset AAE
 				errormode=0;
