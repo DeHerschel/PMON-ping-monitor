@@ -47,43 +47,45 @@ function pingHost() { #ARGS: "mac"/"host" MAC/HOST IFC
 	elif [[ "$1" == "host" ]]; then
 		HOST="$2";
 	fi
-	local c=1 #use for display only in the second round of the loop
+	local isfirst=1 #use for display only in the second round of the loop
 	ping -O $HOST $ifc | while read -r line; do #ping and read lines
 		echo -e "${HOST}: ";
-		if [ $c -eq 0 ]; then 
-			getStats "$line"
-			[ "$errormode" -eq 0 ] && statsMsg
-		fi
-		LAST_PICMP=$PICMP;
-		c=0;
 		if [[ "$line" =~ "Unreachable" ]] || [[ "$line" =~ "no answer" ]]; then
 		#no answer ---> eroor mode ---> alert & log
 			[ "$errormode" -eq 1 ] && {	
-				echo -e " \e[101;1;97m WARNING: $line\e[m\n";
+				echo -e " \e[101;1;97m WARNING: ${line}\e[m\n";
 				continue;
 			}
-			hostdownMsg && hostdownMsg "$LOG";
-			echo -e "\e[101;1;97m$line\e[m\n" && echo -e "${DATE}: ${line}" >> "$LOG";
+			hostdownMsg && hostdownMsg >> "$LOG";
+			echo -e "${line}\n" && echo -e "${DATE}: ${line}" >> "$LOG";
 			errormode=1;
 		else #good answer
+			getStats "$line"
+			[ $isfirst -eq 1 ] && {
+				echo -e "$line\n"
+				isfirst=0;
+				continue;
+			} 
+			statsMsg
+			LAST_PICMP=$PICMP;
 			[ "$errormode" -eq 0 ] && {
 				echo -e "$line\n";
 				continue;
 			}
 			let aae=aae+1; #count aae
 			[ "$aae" -eq 1 ] && { #first good ping after error
-				echo -e "\n\e[42;1;97m${DATE}: HOST IS UP\e[m\n" && echo -e "${DATE} HOST IS UP" >> "$LOG";
-				echo -e "\e[42;1;97m${line}\e[m\n" && echo -e "${DATE}: ${line}" >> "$LOG";
+				echo -e "\n${DATE}: HOST IS UP\n" && echo -e "${DATE} HOST IS UP" >> "$LOG";
+				echo -e "${line}\n" && echo -e "${DATE}: ${line}" >> "$LOG";
 				continue;
 			}
 			[ "$aae" -eq 30 ] && { #30 good ping after error ends error mode
-				echo -e "\n\e[42;1;97m${hoststable_msg}\e[m\n" && echo -e "${DATE}: ${hoststable_msg}" >> "$LOG";
-				echo -e "\e[42;1;97m${line}\e[m\n" && echo -e "${DATE}: ${line}" >> "$LOG";
+				echo -e "\n${hoststable_msg}\n" && echo -e "${DATE}: ${hoststable_msg}" >> "$LOG";
+				echo -e "${line}\n" && echo -e "${DATE}: ${line}" >> "$LOG";
 				aae=0; #reset AAE
 				errormode=0;
 				continue;
 			}
-			echo -e "\e[42;1;97m${line}\e[m\n";
+			echo -e "${line}\n";
 		fi
 	done &
 	pingpids=(${pingpids[@]} $!);
