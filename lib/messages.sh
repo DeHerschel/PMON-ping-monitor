@@ -10,7 +10,7 @@ NoIfc_msg() {
 InvalidMac_m() {
 	echo "mac ${1} is invalid!";
 }
-hostdown_msg() {
+hostdownMsg() {
 	echo "WARNING! THE HOST IS DOWN OR REFUSING THE PING STARTING ERROR MODE";
 }
 hoststable_msg() {
@@ -48,3 +48,16 @@ verbosityError() {
 nomac_msg() {
 	echo "Error: No MAC(s) introduced";
 }
+statsMsg() {
+	local problems=0;
+	local state='NORMAL';
+	if [[ ${PTIME::1} -lt 20 ]]; then
+		state='GOOD';
+	elif [[ $PTIME -gt 100 ]]; then
+		state='BAD';
+	fi
+	[[ $(($PICMP-1)) -eq $LAST_PICMP ]] || let problems=$problems+1
+	echo "TTL=$PTTL		ICMP=$PICMP		TIME=$PTIME
+PING STATE: $state 		PROBLEMS: $problems"
+}		
+
