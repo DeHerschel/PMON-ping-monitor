@@ -31,6 +31,7 @@ helpMsg() {
 Options:
 	-I			Interface to use
 	-v --verbosity		Verbosity level [0-5]
+	-t [options]		Target host [IP/MAC]
 	-h --help		Show this message
 	";
 	exit 0;
