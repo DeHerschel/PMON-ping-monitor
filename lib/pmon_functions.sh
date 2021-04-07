@@ -21,8 +21,8 @@ function isdMac() { #valid mac?
 	echo "$1" | egrep "^^([a-fA-F0-9]{2}:){5}([a-fA-F0-9]{2})$"  > /dev/null
 	[ "$?" == 0 ] || return 1;
 }
-function isIp() {
-	echo "$1" | egrep "^^(1-255].){3}([1-255])$"  > /dev/null
+function isIp() { 
+	echo $1 | egrep "^^([1-9].){3}([1-9])$"  > /dev/null
 	[ "$?" == 0 ] || return 1;
 }
 function macHaveIp() {
@@ -37,7 +37,8 @@ function macHaveIp() {
 function getStats() {
 	local ping=$1;
 	local ping=($ping)
-	if [[ TARGET  == 'IP' ]]; then
+	local host=$HOST;
+	if [[ $TARGET == "IP" ]]; then
 		PTIME=${ping[6]:5};
 		PTTL=${ping[5]:4};
 		PICMP=${ping[4]:9};
@@ -52,15 +53,14 @@ function pingHost() { #ARGS: "mac"/"host" MAC/HOST IFC
 	local errormode=0;
 	[[ $IFC ]] && local ifc="-I $IFC"; 
 	if [[ "$1" == "mac" ]]; then
-		TARGET='IP';
+		TARGET="IP";
 		HOST=$(macHaveIp "$2") || return;
 	elif [[ "$1" == "host" ]]; then
-		if ! isIp; then
-			TARGET='DNS';
-		else 
-			TARGET='IP';
-		fi
+		TARGET="IP";
 		HOST="$2";
+		if ! isIp "$HOST"; then
+			TARGET="DNS"
+		fi
 	fi
 	local isfirst=1 #use for display only in the second round of the loop
 	ping -O $HOST $ifc | while read -r line; do #ping and read lines
