@@ -57,4 +57,4 @@ statsMsg() {
 	[[ $(($PICMP-1)) -eq $LAST_PICMP ]] || let problems=$problems+1
 	echo "TTL=$PTTL		ICMP=$PICMP		TIME=$PTIME
 PING STATE: $state 		PROBLEMS: $problems"
-}		
+}
