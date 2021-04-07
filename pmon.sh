@@ -49,7 +49,7 @@ function argParse() {
 				TARGETS=("$1");
 				shift && shift;
 				for arg in $@; do
-					TARGETS=("${TARGETS}" "$1")
+					TARGETS=("${TARGETS[@]}" "$arg")
 					shift;
 				done;
 				break;;
