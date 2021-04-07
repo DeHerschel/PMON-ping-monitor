@@ -17,8 +17,12 @@ ERRLOG="/var/log/pmon.err.log";
 #      FUNCTIONS      #
 #######################
 
-function validMac() { #valid mac?
+function isdMac() { #valid mac?
 	echo "$1" | egrep "^^([a-fA-F0-9]{2}:){5}([a-fA-F0-9]{2})$"  > /dev/null
+	[ "$?" == 0 ] || return 1;
+}
+function isIp() { 
+	echo $1 | egrep "^^([1-9].){3}([1-9])$"  > /dev/null
 	[ "$?" == 0 ] || return 1;
 }
 function macHaveIp() {
@@ -34,56 +38,69 @@ function getStats() {
 	local ping=$1;
 	local ping=($ping)
 	local host=$HOST;
-	PTIME=${ping[6]:5};
-	PTTL=${ping[5]:4};
-	PICMP=${ping[4]:9};
+	if [[ $TARGET == "IP" ]]; then
+		PTIME=${ping[6]:5};
+		PTTL=${ping[5]:4};
+		PICMP=${ping[4]:9};
+	else
+		PTIME=${ping[7]:5};
+		PTTL=${ping[6]:4};
+		PICMP=${ping[5]:9};
+	fi
 }
 function pingHost() { #ARGS: "mac"/"host" MAC/HOST IFC
 	local aae=0; #alive after errors
 	local errormode=0;
 	[[ $IFC ]] && local ifc="-I $IFC"; 
 	if [[ "$1" == "mac" ]]; then
+		TARGET="IP";
 		HOST=$(macHaveIp "$2") || return;
 	elif [[ "$1" == "host" ]]; then
+		TARGET="IP";
 		HOST="$2";
+		if ! isIp "$HOST"; then
+			TARGET="DNS"
+		fi
 	fi
-	local c=1 #use for display only in the second round of the loop
+	local isfirst=1 #use for display only in the second round of the loop
 	ping -O $HOST $ifc | while read -r line; do #ping and read lines
 		echo -e "${HOST}: ";
-		if [ $c -eq 0 ]; then 
-			getStats "$line"
-			[ "$errormode" -eq 0 ] && statsMsg
-		fi
-		LAST_PICMP=$PICMP;
-		c=0;
 		if [[ "$line" =~ "Unreachable" ]] || [[ "$line" =~ "no answer" ]]; then
 		#no answer ---> eroor mode ---> alert & log
 			[ "$errormode" -eq 1 ] && {	
-				echo -e " \e[101;1;97m WARNING: $line\e[m\n";
+				echo -e " \e[101;1;97m WARNING: ${line}\e[m\n";
 				continue;
 			}
-			hostdownMsg && hostdownMsg "$LOG";
-			echo -e "\e[101;1;97m$line\e[m\n" && echo -e "${DATE}: ${line}" >> "$LOG";
+			hostdownMsg && hostdownMsg >> "$LOG";
+			echo -e "${line}\n" && echo -e "${DATE}: ${line}" >> "$LOG";
 			errormode=1;
 		else #good answer
+			getStats "$line"
+			[ $isfirst -eq 1 ] && {
+				echo -e "$line\n"
+				isfirst=0;
+				continue;
+			} 
+			statsMsg
+			LAST_PICMP=$PICMP;
 			[ "$errormode" -eq 0 ] && {
 				echo -e "$line\n";
 				continue;
 			}
 			let aae=aae+1; #count aae
 			[ "$aae" -eq 1 ] && { #first good ping after error
-				echo -e "\n\e[42;1;97m${DATE}: HOST IS UP\e[m\n" && echo -e "${DATE} HOST IS UP" >> "$LOG";
-				echo -e "\e[42;1;97m${line}\e[m\n" && echo -e "${DATE}: ${line}" >> "$LOG";
+				echo -e "\n${DATE}: HOST IS UP\n" && echo -e "${DATE} HOST IS UP" >> "$LOG";
+				echo -e "${line}\n" && echo -e "${DATE}: ${line}" >> "$LOG";
 				continue;
 			}
 			[ "$aae" -eq 30 ] && { #30 good ping after error ends error mode
-				echo -e "\n\e[42;1;97m${hoststable_msg}\e[m\n" && echo -e "${DATE}: ${hoststable_msg}" >> "$LOG";
-				echo -e "\e[42;1;97m${line}\e[m\n" && echo -e "${DATE}: ${line}" >> "$LOG";
+				hoststableMsg && hoststable_msg >> "$LOG";
+				echo -e "${line}\n" && echo -e "${DATE}: ${line}" >> "$LOG";
 				aae=0; #reset AAE
 				errormode=0;
 				continue;
 			}
-			echo -e "\e[42;1;97m${line}\e[m\n";
+			echo -e "${line}\n";
 		fi
 	done &
 	pingpids=(${pingpids[@]} $!);
