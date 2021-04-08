@@ -38,35 +38,24 @@ function getStats() {
 	local ping=$1;
 	local ping=($ping)
 	local host=$HOST;
-	if [[ $TARGET == "IP" ]]; then
-		PTIME=${ping[6]:5};
-		PTTL=${ping[5]:4};
-		PICMP=${ping[4]:9};
-	else
-		PTIME=${ping[7]:5};
-		PTTL=${ping[6]:4};
-		PICMP=${ping[5]:9};
-	fi
+	PTIME=${ping[-2]:5};
+	PTTL=${ping[-3]:4};
+	PICMP=${ping[-4]:9};
 }
 function pingHost() { #ARGS: "mac"/"host" MAC/HOST IFC
 	local aae=0; #alive after errors
 	local errormode=0;
-	[[ $IFC ]] && local ifc="-I $IFC"; 
+	local isfirst=1 #used for display stats only in the second round of the loop
+	[[ $3 ]] && local ifc="-I $3"; 
 	if [[ "$1" == "mac" ]]; then
-		TARGET="IP";
 		HOST=$(macHaveIp "$2") || return;
 	elif [[ "$1" == "host" ]]; then
-		TARGET="IP";
 		HOST="$2";
-		if ! isIp "$HOST"; then
-			TARGET="DNS"
-		fi
 	fi
-	local isfirst=1 #use for display only in the second round of the loop
 	ping -O $HOST $ifc | while read -r line; do #ping and read lines
 		echo -e "${HOST}: ";
 		if [[ "$line" =~ "Unreachable" ]] || [[ "$line" =~ "no answer" ]]; then
-		#no answer ---> eroor mode ---> alert & log
+			#no answer ---> eroor mode ---> alert & log
 			[ "$errormode" -eq 1 ] && {	
 				echo -e " \e[101;1;97m WARNING: ${line}\e[m\n";
 				continue;
@@ -80,8 +69,8 @@ function pingHost() { #ARGS: "mac"/"host" MAC/HOST IFC
 				echo -e "$line\n"
 				isfirst=0;
 				continue;
-			} 
-			statsMsg
+			}
+			statsMsg 2> /dev/null
 			LAST_PICMP=$PICMP;
 			[ "$errormode" -eq 0 ] && {
 				echo -e "$line\n";
