@@ -8,11 +8,12 @@ unset PTTL;
 unset LOG;
 unset ERRLOG;
 unset DATE;
+unset ERRORMODE;
 
 LOG="/var/log/pmon.log";
 DATE="$(date)";
 ERRLOG="/var/log/pmon.err.log";
-
+ERRORMODE=0;
 #######################
 #      FUNCTIONS      #
 #######################
@@ -44,9 +45,8 @@ function getStats() {
 }
 function pingHost() { #ARGS: "mac"/"host" MAC/HOST IFC
 	local aae=0; #alive after errors
-	local errormode=0;
-	local isfirst=1 #used for display stats only in the second round of the loop
-	[[ $3 ]] && local ifc="-I $3"; 
+	local isfirst=1;
+	[[ $3 ]] && local ifc="-I $1"; 
 	if [[ "$1" == "mac" ]]; then
 		HOST=$(macHaveIp "$2") || return;
 	elif [[ "$1" == "host" ]]; then
@@ -56,23 +56,23 @@ function pingHost() { #ARGS: "mac"/"host" MAC/HOST IFC
 		echo -e "${HOST}: ";
 		if [[ "$line" =~ "Unreachable" ]] || [[ "$line" =~ "no answer" ]]; then
 			#no answer ---> eroor mode ---> alert & log
-			[ "$errormode" -eq 1 ] && {	
+			[ "$ERRORMODE" -eq 1 ] && {	
 				echo -e " \e[101;1;97m WARNING: ${line}\e[m\n";
 				continue;
 			}
 			hostdownMsg && hostdownMsg >> "$LOG";
 			echo -e "${line}\n" && echo -e "${DATE}: ${line}" >> "$LOG";
-			errormode=1;
+			ERRORMODE=1;
 		else #good answer
 			getStats "$line"
 			[ $isfirst -eq 1 ] && {
-				echo -e "$line\n"
 				isfirst=0;
+				echo -e "$line\n"
 				continue;
 			}
 			statsMsg 2> /dev/null
 			LAST_PICMP=$PICMP;
-			[ "$errormode" -eq 0 ] && {
+			[ "$ERRORMODE" -eq 0 ] && {
 				echo -e "$line\n";
 				continue;
 			}
@@ -86,7 +86,7 @@ function pingHost() { #ARGS: "mac"/"host" MAC/HOST IFC
 				hoststableMsg && hoststable_msg >> "$LOG";
 				echo -e "${line}\n" && echo -e "${DATE}: ${line}" >> "$LOG";
 				aae=0; #reset AAE
-				errormode=0;
+				ERRORMODE=0;
 				continue;
 			}
 			echo -e "${line}\n";
