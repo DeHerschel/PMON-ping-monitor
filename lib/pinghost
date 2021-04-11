@@ -1,0 +1,60 @@
+#!/bin/bash
+function getStats() {
+	local ping=$1;
+	local ping=($ping)
+	local host=$HOST;
+	PTIME=${ping[-2]:5};
+	PTTL=${ping[-3]:4};
+	PICMP=${ping[-4]:9};
+}
+function pingHost() { #ARGS: "mac"/"host" MAC/HOST IFC
+	local aae=0; #alive after errors
+	local isfirst=1;
+	[[ $3 ]] && local ifc="-I $1"; 
+	if [[ "$1" == "mac" ]]; then
+		HOST=$(macHaveIp "$2") || return;
+	elif [[ "$1" == "host" ]]; then
+		HOST="$2";
+	fi
+	ping -O $HOST $ifc | while read -r line; do #ping and read lines
+		echo -e "${HOST}: ";
+		if [[ "$line" =~ "Unreachable" ]] || [[ "$line" =~ "no answer" ]]; then
+			#no answer ---> eroor mode ---> alert & log
+			[ "$ERRORMODE" -eq 1 ] && {	
+				echo -e " \e[101;1;97m WARNING: ${line}\e[m\n";
+				continue;
+			}
+			hostdownMsg && hostdownMsg >> "$LOG";
+			echo -e "${line}\n" && echo -e "${DATE}: ${line}" >> "$LOG";
+			ERRORMODE=1;
+		else #good answer
+			getStats "$line"
+			[ $isfirst -eq 1 ] && {
+				isfirst=0;
+				echo -e "$line\n"
+				continue;
+			}
+			statsMsg 2> /dev/null
+			LAST_PICMP=$PICMP;
+			[ "$ERRORMODE" -eq 0 ] && {
+				echo -e "$line\n";
+				continue;
+			}
+			let aae=aae+1; #count aae
+			[ "$aae" -eq 1 ] && { #first good ping after error
+				echo -e "\n${DATE}: HOST IS UP\n" && echo -e "${DATE} HOST IS UP" >> "$LOG";
+				echo -e "${line}\n" && echo -e "${DATE}: ${line}" >> "$LOG";
+				continue;
+			}
+			[ "$aae" -eq 30 ] && { #30 good ping after error ends error mode
+				hoststableMsg && hoststable_msg >> "$LOG";
+				echo -e "${line}\n" && echo -e "${DATE}: ${line}" >> "$LOG";
+				aae=0; #reset AAE
+				ERRORMODE=0;
+				continue;
+			}
+			echo -e "${line}\n";
+		fi
+	done &
+	pingpids=(${pingpids[@]} $!);
+}
