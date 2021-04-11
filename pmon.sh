@@ -7,6 +7,7 @@ unset TARGETS;
 unset MACS;
 
 
+
 function isRoot() {
 	[ "$EUID" -ne 0 ] && norootMsg;
 }
