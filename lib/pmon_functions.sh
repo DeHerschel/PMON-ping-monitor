@@ -8,11 +8,12 @@ unset PTTL;
 unset LOG;
 unset ERRLOG;
 unset DATE;
+unset ERRORMODE;
 
 LOG="/var/log/pmon.log";
 DATE="$(date)";
 ERRLOG="/var/log/pmon.err.log";
-
+ERRORMODE=0;
 #######################
 #      FUNCTIONS      #
 #######################
@@ -38,52 +39,40 @@ function getStats() {
 	local ping=$1;
 	local ping=($ping)
 	local host=$HOST;
-	if [[ $TARGET == "IP" ]]; then
-		PTIME=${ping[6]:5};
-		PTTL=${ping[5]:4};
-		PICMP=${ping[4]:9};
-	else
-		PTIME=${ping[7]:5};
-		PTTL=${ping[6]:4};
-		PICMP=${ping[5]:9};
-	fi
+	PTIME=${ping[-2]:5};
+	PTTL=${ping[-3]:4};
+	PICMP=${ping[-4]:9};
 }
 function pingHost() { #ARGS: "mac"/"host" MAC/HOST IFC
 	local aae=0; #alive after errors
-	local errormode=0;
-	[[ $IFC ]] && local ifc="-I $IFC"; 
+	local isfirst=1;
+	[[ $3 ]] && local ifc="-I $1"; 
 	if [[ "$1" == "mac" ]]; then
-		TARGET="IP";
 		HOST=$(macHaveIp "$2") || return;
 	elif [[ "$1" == "host" ]]; then
-		TARGET="IP";
 		HOST="$2";
-		if ! isIp "$HOST"; then
-			TARGET="DNS"
-		fi
 	fi
-	local isfirst=1 #use for display only in the second round of the loop
 	ping -O $HOST $ifc | while read -r line; do #ping and read lines
 		echo -e "${HOST}: ";
 		if [[ "$line" =~ "Unreachable" ]] || [[ "$line" =~ "no answer" ]]; then
-		#no answer ---> eroor mode ---> alert & log
-			[ "$errormode" -eq 1 ] && {	
+			#no answer ---> eroor mode ---> alert & log
+			[ "$ERRORMODE" -eq 1 ] && {	
 				echo -e " \e[101;1;97m WARNING: ${line}\e[m\n";
 				continue;
 			}
 			hostdownMsg && hostdownMsg >> "$LOG";
 			echo -e "${line}\n" && echo -e "${DATE}: ${line}" >> "$LOG";
-			errormode=1;
+			ERRORMODE=1;
 		else #good answer
 			getStats "$line"
 			[ $isfirst -eq 1 ] && {
-				echo -e "$line\n"
 				isfirst=0;
+				echo -e "$line\n"
 				continue;
-			} 
-			statsMsg
+			}
+			statsMsg 2> /dev/null
 			LAST_PICMP=$PICMP;
-			[ "$errormode" -eq 0 ] && {
+			[ "$ERRORMODE" -eq 0 ] && {
 				echo -e "$line\n";
 				continue;
 			}
@@ -97,7 +86,7 @@ function pingHost() { #ARGS: "mac"/"host" MAC/HOST IFC
 				hoststableMsg && hoststable_msg >> "$LOG";
 				echo -e "${line}\n" && echo -e "${DATE}: ${line}" >> "$LOG";
 				aae=0; #reset AAE
-				errormode=0;
+				ERRORMODE=0;
 				continue;
 			}
 			echo -e "${line}\n";
