@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 source ./lib/pmon-functions.sh
-source ./lib/messages.sh
 unset targetopt;
 unset IFC;
 unset VERBOSE;
