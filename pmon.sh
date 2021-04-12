@@ -1,26 +1,15 @@
 #!/usr/bin/env bash
-source ./lib/pmon-functions.sh
+source ./lib/general
 unset targetopt;
 unset IFC;
 unset VERBOSE;
 unset TARGETS;
 unset MACS;
+VERBOSE=3
+########################
+#       MAIN            #
+#########################
 
-
-
-function isRoot() {
-	[ "$EUID" -ne 0 ] && norootMsg;
-}
-function isIfc() {
-	local ifc="$1";
-	ifconfig "$ifc" > /dev/null 2>&1
-	if [ "$?" == 1 ]; then
-		echo -e "${ifc}: ${NoIfc_msg}";
-		return 1;
-	else
-		return 0;
-	fi
-}
 function argParse() {
 	options=$(getopt -n pmon -o I:hv:t: -l no-screen -l verbosity: -l help -- "$@")
 	[ $? -eq 0 ] || exit 2;
@@ -74,16 +63,13 @@ function argParse() {
 		shift;
 	done;
 }
-#########################
-#       MAIN            #
-#########################
 
 function main() {
 	argParse "$@";
 	isRoot;
 	if [[ "$targetopt" ]]; then
 		for target in ${TARGETS[@]}; do
-			pingHost "host" "$target" "$IFC"
+			pingHost "$target" "$IFC"
 		done;
 	else
 		#selected IFCE
@@ -97,7 +83,8 @@ function main() {
 			scan=$(arp-scan -l);
 		}
 		for mac in ${MACS[@]}; do
-			pingHost "mac" "$mac" "$IFC";
+			host=$(macHaveIp "$mac");
+			pingHost "$host" "$IFC";
 		done
 	fi
 	keyEventListener;
