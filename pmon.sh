@@ -5,6 +5,9 @@ unset IFC;
 unset VERBOSE;
 unset TARGETS;
 unset MACS;
+LOG="/var/log/pmon.log";
+DATE="$(date)";
+ERRLOG="/var/log/pmon.err.log";
 VERBOSE=3
 ########################
 #       MAIN            #
@@ -51,8 +54,8 @@ function argParse() {
 				[[ ! $1 ]] && usageMsg;
 				c=0 #count macs in $@
 				for arg in $@; do
-					if ! validMac $arg; then
-						echo -e "${arg}: ${InvalidMac_m}";
+					if ! isMac $arg; then
+						invalidmacMsg
 						exit 2;
 					fi
 					MACS[$c]="$arg";
@@ -83,8 +86,7 @@ function main() {
 			scan=$(arp-scan -l);
 		}
 		for mac in ${MACS[@]}; do
-			host=$(macHaveIp "$mac");
-			pingHost "$host" "$IFC";
+			{ host=$(macHaveIp "$MAC") &&	pingHost $host; } || ipNotFoundMsg $MAC && ipNotFoundMsg $MAC >> $ERRLOG >> $LOG;
 		done
 	fi
 	keyEventListener;

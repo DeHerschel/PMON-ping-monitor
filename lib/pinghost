@@ -4,7 +4,7 @@ unset PTIME;
 unset PICMP;
 unset PTTL;
 ERRORMODE=0;
-LAST_PICMP=0
+LAST_PICMP=0;
 function getStats() {
 	local pingLine=$1;
 	local pingLine=($pingLine)
@@ -30,7 +30,7 @@ function getStats() {
 		let problems=$problems+1;
 		let lost=$lost+1;
 		LOST=$lost
-		PROBLEMS=$problems
+		PROBLEMS=$problems;
 	}
 }
 function pingHost() { #ARGS: HOST
@@ -41,6 +41,7 @@ function pingHost() { #ARGS: HOST
 	ping -O $HOST $ifcopt | while read -r line; do #pingLine and read lines
 		if [[ "$line" =~ "Unreachable" ]] || [[ "$line" =~ "no answer" ]]; then
 			#no answer ---> eroor mode ---> alert & log
+			aae=0;
 			[ "$ERRORMODE" -eq 1 ] && {	
 				echo -e " \e[101;1;97m WARNING: ${line}\e[m\n";
 				continue;
@@ -50,7 +51,7 @@ function pingHost() { #ARGS: HOST
 		else #good answer
 			getStats "$line"
 			[ $isfirstline -eq 1 ] && {
-				echo -e "$line\n"
+				pingMsg
 				isfirstline=0;
 				continue;
 			}
