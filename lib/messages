@@ -4,7 +4,14 @@
 #         MESSAGES             #
 ################################
 ipNotFoundMsg() {
-	echo -e "\n########## IP NOT FOUND FOR MAC ${1} ##########\n";
+	case $VERBOSE in
+	1) 
+		echo -e "\n########## IP NOT FOUND FOR MAC ${1} ##########\n" >> $ERRLOG;;
+	2)
+		echo -e "\n########## IP NOT FOUND FOR MAC ${1} ##########\n";;
+	[345])
+		echo -e "\n########## IP NOT FOUND FOR MAC ${1} ##########\n" && echo -e "\n########## IP NOT FOUND FOR MAC ${1} ##########\n" > $LOG;;
+	esac
 }
 usageMsg() {
 	echo "	
@@ -44,8 +51,16 @@ nomac_msg() {
 NoIfc_msg() {
 	echo "error. No such interface";
 }
-InvalidMac_m() {
-	echo "mac ${1} is invalid!";
+
+invalidmacMsg() {
+	case $VERBOSE in
+	1) 
+		echo "$DATE: mac ${1} is invalid!" >> $ERRLOG;;
+	2)
+		echo "mac ${1} is invalid!";;
+	[345])
+		echo "mac ${1} is invalid!" && echo "mac ${1} is invalid!" > $LOG;;
+	esac
 }
 pingMsg() {
 	case $VERBOSE in
@@ -69,7 +84,7 @@ hostdownMsg() {
 		0)
 			;;
 		1)
-			echo "${DATE}: WARNING! THE HOST IS DOWN OR REFUSING THE PING STARTING ERROR MODE"; >> $LOG;;
+			echo "${DATE}: WARNING! THE HOST IS DOWN OR REFUSING THE PING STARTING ERROR MODE $line" >> $LOG;;
 		2)
 			echo -e "${HOST}: ";
 			echo "WARNING! THE HOST IS DOWN OR REFUSING THE PING STARTING ERROR MODE";
@@ -77,13 +92,13 @@ hostdownMsg() {
 		3)
 			echo -e "${HOST}: ";
 			echo "WARNING! THE HOST IS DOWN OR REFUSING THE PING STARTING ERROR MODE";
-			echo "${DATE}: WARNING! THE HOST IS DOWN OR REFUSING THE PING STARTING ERROR MODE";
+			echo "${DATE}: WARNING! THE HOST IS DOWN OR REFUSING THE PING STARTING ERROR MODE" >> $LOG;
 			echo -e "${DATE}: ${line}" >> "$LOG";;
 		[45])
 			echo -e "${HOST}: ";
 			echo "WARNING! THE HOST IS DOWN OR REFUSING THE PING STARTING ERROR MODE";
 			echo -e "${line}\n"
-			echo "${DATE}: WARNING! THE HOST IS DOWN OR REFUSING THE PING STARTING ERROR MODE";
+			echo "${DATE}: WARNING! THE HOST IS DOWN OR REFUSING THE PING STARTING ERROR MODE" >> $LOG;
 			echo -e "${DATE}: ${line}" >> "$LOG";;
 	esac
 }
@@ -93,14 +108,10 @@ hostUpMsg() {
 			;;
 		1) 
 			echo -e "${DATE} HOST IS UP" >> "$LOG";;
-		2)
+		[23])
 			echo -e "${HOST}: ";
 			echo -e "\nHOST IS UP\n";
 			echo -e "${line}";;
-		3)
-			echo -e "${HOST}: ";
-			echo -e "\nHOST IS UP\n" && echo -e "${DATE} HOST IS UP" >> "$LOG";
-			echo -e "${DATE}: ${line}" >> "$LOG";;
 		[45])
 			echo -e "${HOST}: ";
 			echo -e "\nHOST IS UP\n" && echo -e "${DATE} HOST IS UP" >> "$LOG";

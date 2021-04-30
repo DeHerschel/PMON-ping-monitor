@@ -1,0 +1,26 @@
+#!/bin/bash
+unset HOSTFILE;
+unset MAC;
+unset MACS;
+unset HOST;
+unset HOSTS;
+unset IFC;
+source /var/lib/pmon/general;
+source /etc/pmon/pmon.conf
+DATE="$(date)";
+MACS=();
+while read -r line; do
+	if [[ ! $line ]] || [[ $line =~ '#' ]]; then
+		continue;
+	fi
+	if [[ $line  =~ 'M-' ]]; then
+		MAC=${line:2};
+		isMac || { invalidmacMsg $MAC && exit 2; }
+		{ host=$(macHaveIp "$MAC") &&	pingHost $host; } || ipNotFoundMsg $MAC && ipNotFoundMsg $MAC >> $ERRLOG;
+		continue;
+	fi
+	HOST=$line;
+	pingHost $HOST;
+done < $HOSTSFILE;
+
+
