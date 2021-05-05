@@ -74,4 +74,5 @@ function pingHost() { #ARGS: HOST
 		fi
 	done &
 	pingpids=(${pingpids[@]} $!);
+	HOSTDATA[PINGPID]=$!
 }
