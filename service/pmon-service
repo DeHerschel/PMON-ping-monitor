@@ -59,6 +59,9 @@ case "$1" in
             exit 1
         else
             echo "Stopped"
+			if [ -f "/tmp/pmon/hosts.json" ]; then
+				rm "/tmp/pmon/hosts.json";
+			fi
             if [ -f "$pid_file" ]; then
                 rm "$pid_file"
             fi
