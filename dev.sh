@@ -22,7 +22,7 @@ echo -ne "/var/lib/pmon/.....\r"
 sleep 0.5
 echo -ne "/var/lib/pmon/.....\r"
 cp lib/* /var/lib/pmon/
-echo -ne "Copying triggers...\n" 
+echo -ne "Copying triggers...\r" 
 cp service/pmond /bin/pmond
 cp pmon.sh /usr/bin/pmon
-echo "Installed"
+echo "Dev OK                      "

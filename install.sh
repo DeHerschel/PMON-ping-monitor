@@ -30,6 +30,7 @@ if [[ -d /var/lib/pmon ]]; then
 		rm /var/log/pmon.err.log
 		rm /var/log/pmon.log
 		rm -r /etc/pmon
+		rm -r /tmp/pmon
 	else 
 		exit 1;
 	fi  
@@ -43,6 +44,7 @@ sleep 0.5
 echo -ne "/etc/pmon\r"
 sleep 0.5
 mkdir /etc/pmon
+mkdir /tmp/pmon
 echo -ne "ok\n"
 
 echo -ne "Copying files...    \r"

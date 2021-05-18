@@ -7,38 +7,57 @@ unset HOSTS;
 unset IFC;
 source /var/lib/pmon/general;
 source /etc/pmon/pmon.conf
-DATE="$(date)";
 MACS=();
-HOSTS="/tmp/pmon/hosts.tmp"
-declare -A HOSTDATA;
+HOSTS="/tmp/pmon/hosts.json"
 c=1;
+if [ ! -d "/tmp/pmon" ]; then
+	mkdir /tmp/pmon
+fi
+echo "{" >> $HOSTS;
 while read -r line; do
+	declare -A HOSTDATA;
 	if [[ ! $line ]] || [[ $line =~ '#' ]]; then
 		continue;
 	fi
 	if [[ $line  =~ 'M-' ]]; then
 		MAC=${line:2};
 		isMac "$MAC" || { invalidmacMsg "$MAC" && exit 2; }
+		HOST=$(macHaveIp "$MAC") || ipNotFoundMsg $MAC;
+		pingHost $HOST
+		HOSTDATA[IP]="$HOST"
 		HOSTDATA[mac]="$MAC";
-		{ HOST=$(macHaveIp "$MAC") && HOSTDATA[IP]="$HOST" && pingHost $HOST; } || ipNotFoundMsg $MAC && ipNotFoundMsg $MAC >> $ERRLOG;
+		HOSTDATA[host]="HOST$c";
+		echo "	\"HOST$c\":{ 
+		\"HOST\":\"${HOSTDATA[host]}\",
+		\"IP\":\"${HOSTDATA[IP]}\",
+		\"MAC\":\"${HOSTDATA[mac]}\",
+		\"PINGPID\":\"${HOSTDATA[PINGPID]}\"
+	}," >> $HOSTS;
+		unset HOSTDATA
+		let c=c+1
 		continue;
 	fi
 	dest=$line;
-	HOSTDATA[host]="host";  
+	HOSTDATA[mac]=""
 	if isIp $dest; then
+		HOSTDATA[host]="HOST$c";  
 		HOSTDATA[IP]=$dest;
 	else
+		HOSTDATA[host]="$dest";  
 		HOSTDATA[IP]=""
 	fi
-	pingHost $dest;
-
-	echo "HOST$c { 
-	HOST:\"${HOSTDATA[host]}\",
-	IP:${HOSTDATA[IP]},
-	PINGPID:${HOSTDATA[PINGPID]}
-}" >> $HOSTS;
+	pingHost $dest $c;
+	echo "	\"HOST$c\":{ 
+		\"HOST\":\"${HOSTDATA[host]}\",
+		\"IP\":\"${HOSTDATA[IP]}\",
+		\"MAC\":\"${HOSTDATA[mac]}\",
+		\"PINGPID\":\"${HOSTDATA[PINGPID]}\"
+	}," >> $HOSTS;
+	unset HOSTDATA
 	let c=c+1
 done < $HOSTSFILE;
+sed -i '$ s/.$//' $HOSTS;
+echo "}" >> $HOSTS;
 #listen
 while true; do
 	continue;
