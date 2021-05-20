@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
+Route::get('/stats' , function(){
+    return view('stats');
+});
 
 Auth::routes();
 Route::group(['middleware' => 'auth'], function(){
