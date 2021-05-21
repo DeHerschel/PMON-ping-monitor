@@ -69,40 +69,42 @@
             </div>
         </nav>
         <!-- Sidebar -->
-            <div id="sidebar-wrapper">
-                <ul class="sidebar-nav nav-pills nav-stacked" id="menu">
-                    <li class="active">
-                    <a href="#"><span class="fa-stack fa-lg pull-left"><i class="fa fa-home fa-stack-1x "></i></span>HOME</a>
-                    </li>
-                    <li>
-                    <a href="#"><span class="fa-stack fa-lg pull-left"><i class="fa fa-server fa-stack-1x "></i></span>HOSTS</a>
-                    <ul class="nav-pills nav-stacked" style="list-style-type:none;">
-                        <li><a href="#"><span class="fa-stack fa-lg pull-left"><i class="fa fa-flag fa-stack-1x "></i></span>link1</a></li>
-                        <li><a href="#"><span class="fa-stack fa-lg pull-left"><i class="fa fa-flag fa-stack-1x "></i></span>link2</a></li>
+            <aside>
+
+                <div id="sidebar-wrapper">
+                    <ul class="sidebar-nav nav-pills nav-stacked" id="menu">
+                        <li class="active">
+                            <a href="#"><span class="fa-stack fa-lg pull-left"><i class="fa fa-home fa-stack-1x "></i></span>HOME</a>
+                        </li>
+                        <li>
+                            <a href="#"><span class="fa-stack fa-lg pull-left"><i class="fa fa-server fa-stack-1x "></i></span>HOSTS</a>
+                            <ul class="nav-pills nav-stacked" style="list-style-type:none;">
+                                <li><a href="#"><span class="fa-stack fa-lg pull-left"><i class="fa fa-flag fa-stack-1x "></i></span>link1</a></li>
+                                <li><a href="#"><span class="fa-stack fa-lg pull-left"><i class="fa fa-flag fa-stack-1x "></i></span>link2</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#"><span class="fa-stack fa-lg pull-left"><i class="fa fa-terminal fa-stack-1x "></i></span>CONSOLE</a>
+                        </li>
+                        <li>
+                            <a href="#"> <span class="fa-stack fa-lg pull-left"><i class="fa fa-cogs fa-stack-1x "></i></span>CONFIGURATION</a>
+                        </li>
+
                     </ul>
-                    </li>
-                    <li>
-                    <a href="#"><span class="fa-stack fa-lg pull-left"><i class="fa fa-terminal fa-stack-1x "></i></span>CONSOLE</a>
-                    </li>
-                    <li>
-                    <a href="#"> <span class="fa-stack fa-lg pull-left"><i class="fa fa-cogs fa-stack-1x "></i></span>CONFIGURATION</a>
-                    </li>
+                    <img src="images/pmon-logo.png" alt="">
 
-                </ul>
-                <img src="images/pmon-logo.png" alt="">
-
-            </div>
+                </div>
+            </aside>
         <main class="py-4 d-flex flex-colum h-100">
             @yield('content')
         </main>
         <!-- Footer -->
         <!-- Footer -->
-
+        <footer class="py-3 fixed-bottom" style="background:#aaaaaa">
+        <div class="container">
+            <span class="text-muted">PMON 2021</span>
+        </div>
+        </footer>
     </div>
-    <footer class="py-3" style="background:#aaaaaa">
-    <div class="container">
-        <span class="text-muted">PMON 2021</span>
-    </div>
-    </footer>
 </body>
 </html>
