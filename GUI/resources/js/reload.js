@@ -1,6 +1,6 @@
 
-window.onload = () => {
-    setInterval(() => {
-        $(".host-state").load("stats.php")
-    }, 1000);
-}
+// window.onload = () => {
+//     setInterval(() => {
+//         $(".host-state").load("stats.php")
+//     }, 1000);
+// }

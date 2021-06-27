@@ -44,7 +44,8 @@ case "$1" in
     stop)
     if is_running; then
         echo -n "Stopping $name.."
-        kill `get_pid`
+		kill `get_pid`
+		kill $(cat /var/run/pmond.pids)
         for i in {1..10}; do
             if ! is_running; then
                 break

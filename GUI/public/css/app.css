@@ -10004,14 +10004,21 @@ h3 {
 }
 body {
   margin: 0;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+  padding: 0;
+  background-color: #e6e6e6;
+}
+
+.gradient-omg {
+  background: #333333;
+  background: linear-gradient(150deg, #333333 42%, #3d5e80 46%, #333333 49%, #333333 55%, #4689cd 58%, #333333 61%, #333333 62%, #333333 70%, #4689cd 73%, #333333 76%);
 }
 
 .nav-pills > li > a {
   border-radius: 0;
+}
+
+.nav-pills {
+  margin: 0;
 }
 
 #wrapper {
@@ -10028,60 +10035,37 @@ body {
 #sidebar-wrapper {
   z-index: 1000;
   top: 0;
-  position: absolute;
-  left: 250px;
-  width: 0;
+  float: left;
   height: 100%;
-  margin-left: -250px;
-  overflow-y: auto;
+  width: 15%;
   background: #333333;
   background: linear-gradient(150deg, #333333 42%, #3d5e80 46%, #333333 49%, #333333 55%, #4689cd 58%, #333333 61%, #333333 62%, #333333 70%, #4689cd 73%, #333333 76%);
   transition: all 0.5s ease;
 }
 
-#wrapper.toggled #sidebar-wrapper {
-  width: 250px;
-}
-
-#page-content-wrapper {
-  position: absolute;
-  padding: 15px;
-  width: 100%;
-  overflow-x: hidden;
-}
-
-.xyz {
-  min-width: 360px;
-}
-
-#wrapper.toggled #page-content-wrapper {
-  position: relative;
-  margin-right: 0px;
-}
-
-.fixed-brand {
-  width: auto;
-}
-
 /* Sidebar Styles */
 .sidebar-nav {
   position: absolute;
-  top: 0;
+  left: 0;
+  top: 50px;
   width: 250px;
   margin: 0;
   padding: 0;
   list-style: none;
   margin-top: 2px;
+  bottom: 0;
 }
 
 .sidebar-nav li {
-  text-indent: 15px;
+  display: block;
+  margin-top: 10px;
   line-height: 40px;
 }
 
 .sidebar-nav li a {
-  display: block;
-  text-decoration: none;
+  -webkit-text-decoration: solid;
+          text-decoration: solid;
+  font-weight: bolder;
   color: #ffffff;
 }
 
@@ -10089,7 +10073,7 @@ body {
   text-decoration: none;
   color: #fff;
   background: rgba(255, 255, 255, 0.2);
-  border-left: #4e8fcc 2px solid;
+  border-left: #4e8fcc 4px solid;
 }
 
 .sidebar-nav li a:active,
@@ -10144,26 +10128,6 @@ body {
   #wrapper.toggled-2 #sidebar-wrapper:hover {
     width: 250px;
   }
-
-  #page-content-wrapper {
-    padding: 20px;
-    position: relative;
-    transition: all 0.5s ease;
-  }
-
-  #wrapper.toggled #page-content-wrapper {
-    position: relative;
-    margin-right: 0;
-    padding-left: 250px;
-  }
-
-  #wrapper.toggled-2 #page-content-wrapper {
-    position: relative;
-    margin-right: 0;
-    margin-left: -200px;
-    transition: all 0.5s ease;
-    width: auto;
-  }
 }
 .navcolor {
   background: #333333;
@@ -10181,7 +10145,7 @@ img {
   position: absolute;
   bottom: 13%;
   left: 7%;
-  width: 100%;
+  width: 90%;
   z-index: 100000;
 }
 
@@ -10337,4 +10301,174 @@ img {
   100% {
     transform: rotate(135deg);
   }
+}
+.align-center {
+  margin-top: 2%;
+  margin-left: 6%;
+  text-align: center;
+  background-color: #ffffff;
+  border-radius: 0;
+  padding: 0;
+  border: solid 1px;
+  border-color: #e6e6e6;
+  box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.63);
+}
+
+.align-center h3 {
+  margin: auto;
+}
+
+.host-state {
+  border-radius: 0;
+  background-color: #FFFFFFFF !important;
+  border-bottom: solid 2px;
+  border-bottom-color: #4689cd;
+  text-align: center;
+  padding-top: 5%;
+}
+
+.host-state h4 {
+  font-weight: bolder;
+  margin-top: 3%;
+}
+
+.container-stats {
+  margin-left: 16%;
+  max-width: 80% !important;
+}
+
+.control {
+  background-color: #FFFFFFFF;
+  width: 100%;
+  height: 35%;
+  bottom: 0;
+  margin: 0;
+  z-index: 1;
+  box-shadow: inset 0px 0px 4px 0px #454545;
+  -moz-box-shadow: inset 0px 0px 4px 0px #454545;
+  -webkit-box-shadow: inset 0px 0px 4px 0px #454545;
+  border-top: solid 2px;
+  border-top-color: #4689cd;
+}
+
+main {
+  margin-bottom: 20%;
+}
+
+@media (min-width: 770px) and (max-width: 900px) {
+  .container-stats {
+    margin-left: 31%;
+    max-width: 85% !important;
+  }
+
+  .align-center {
+    margin-top: 2%;
+    margin-left: 3%;
+    text-align: center;
+    background-color: #ffffff;
+    padding: 0;
+    box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.63);
+    border-radius: 8px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+}
+@media (min-width: 1140px) and (max-width: 1540px) {
+  .container-stats {
+    margin-left: 25%;
+    max-width: 85% !important;
+  }
+
+  .align-center {
+    margin-top: 2%;
+    margin-left: 3%;
+    text-align: center;
+    background-color: #ffffff;
+    padding: 0;
+    box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.63);
+    border-radius: 8px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+}
+@media (min-width: 900px) and (max-width: 1140px) {
+  .container-stats {
+    margin-left: 28%;
+    max-width: 85% !important;
+  }
+
+  .align-center {
+    margin-top: 2%;
+    margin-left: 3%;
+    text-align: center;
+    background-color: #ffffff;
+    padding: 0;
+    box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.63);
+    border-radius: 8px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+}
+@media (min-width: 1548px) {
+  .container-stats {
+    margin-left: 18%;
+    max-width: 80% !important;
+  }
+
+  .align-center {
+    margin-top: 2%;
+    margin-left: 6%;
+    text-align: center;
+    background-color: #ffffff;
+    padding: 0;
+    box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.63);
+    border-radius: 8px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+}
+.servicediv {
+  width: 20%;
+  height: 100%;
+  float: right;
+  border-left: solid 2px #e6e6e6;
+  text-align: center;
+  font-size: larger;
+  font-weight: bolder;
+}
+
+.servicediv p {
+  display: inline;
+  margin-top: 10%;
+  font-size: larger;
+  font-weight: bolder;
+}
+
+#running {
+  display: inline;
+  font-size: larger;
+  color: green;
+  font-weight: bolder;
+}
+
+#servicebutton {
+  color: #ffffff;
+  height: 20%;
+  width: 40%;
+  margin-top: 20%;
+  display: inline-block;
+  font-weight: bolder;
+}
+
+.statusdiv {
+  float: left;
+  width: 60%;
+  margin-top: 3%;
+  margin-left: 17.5%;
+}
+
+.border-data {
+  padding: 1%;
+  border-bottom: solid 2px;
+  border-bottom-color: #4689cd;
 }

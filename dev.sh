@@ -1,5 +1,6 @@
 #!/bin/bash
-
+service pmon stop
+killall ping
 echo -ne "/etc/pmon/pmon.conf\r"
 cp service/pmon.conf /etc/pmon/pmon.conf
 sleep 0.5

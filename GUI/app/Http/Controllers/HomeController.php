@@ -25,4 +25,16 @@ class HomeController extends Controller
     {
         return view('home');
     }
+    public function hoststab()
+    {
+        return view('host');
+    }
+    public function conftab()
+    {
+        return view('configuration');
+    }
+    public function consoletab()
+    {
+        return view('console');
+    }
 }

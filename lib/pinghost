@@ -1,4 +1,5 @@
 #!/bin/bash
+source /var/lib/pmon/makejson
 unset HOST;
 unset PTIME;
 unset PICMP;
@@ -32,36 +33,6 @@ function getStats() {
 		LOST=$lost
 		PROBLEMS=$problems;
 	}
-}
-function dataJSON() {
-	hostJson="/tmp/pmon/host${nhost}.json";
-	echo "{ 
-		\"TIME\":\"${PTIME}\",
-		\"TTL\":\"${PTTL}\",
-		\"ICMP\":\"${PICMP}\",
-		\"PROBLEMS\":\"${PROBLEMS}\",
-		\"STATE\":\"${STATE}\"
-	}" > $hostJson;
-}
-function downJSON() {
-	hostJson="/tmp/pmon/host${nhost}.json";
-	echo "{ 
-		\"TIME\":\"\",
-		\"TTL\":\"\",
-		\"ICMP\":\"\",
-		\"PROBLEMS\":\"\",
-		\"STATE\":\"DOWN\"
-	}" > $hostJson;
-}
-function inestableJSON() {
-	hostJson="/tmp/pmon/host${nhost}.json";
-	echo "{ 
-		\"TIME\":\"${PTIME}\",
-		\"TTL\":\"${PTTL}\",
-		\"ICMP\":\"${PICMP}\",
-		\"PROBLEMS\":\"${PROBLEMS}\",
-		\"STATE\":\"INESTABLE\"
-	}" > $hostJson;
 }
 
 function pingHost() { #ARGS: HOST [nhost as a service]
@@ -114,5 +85,6 @@ function pingHost() { #ARGS: HOST [nhost as a service]
 		fi
 	done &
 	pingpids=(${pingpids[@]} $!);
+	echo $! >> /var/run/pmond.pids
 	HOSTDATA[PINGPID]=$!
 }

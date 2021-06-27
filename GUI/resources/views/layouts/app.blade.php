@@ -17,7 +17,7 @@
 </head>
 <body>
     <div id="app">
-        <nav class="navbar navbar-expand-md navbar-light navcolor shadow-sm">
+        <nav class="navbar navbar-expand-md navbar-light navcolor shadow-sm fixed-top">
             <div class="container">
                 <a class="navbar-brand" href="{{ url('/') }}" style="color:#FFFFFF">
                     {{ config('app.name', 'PMON') }}
@@ -48,6 +48,7 @@
                                 </li>
                             @endif
                         @else
+
                             <li class="nav-item dropdown">
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre style="color:#ffffff">
                                     {{ Auth::user()->name }}
@@ -68,39 +69,13 @@
                 </div>
             </div>
         </nav>
-        <!-- Sidebar -->
-            <aside>
 
-                <div id="sidebar-wrapper">
-                    <ul class="sidebar-nav nav-pills nav-stacked" id="menu">
-                        <li class="active">
-                            <a href="#"><span class="fa-stack fa-lg pull-left"><i class="fa fa-home fa-stack-1x "></i></span>HOME</a>
-                        </li>
-                        <li>
-                            <a href="#"><span class="fa-stack fa-lg pull-left"><i class="fa fa-server fa-stack-1x "></i></span>HOSTS</a>
-                            <ul class="nav-pills nav-stacked" style="list-style-type:none;">
-                                <li><a href="#"><span class="fa-stack fa-lg pull-left"><i class="fa fa-flag fa-stack-1x "></i></span>link1</a></li>
-                                <li><a href="#"><span class="fa-stack fa-lg pull-left"><i class="fa fa-flag fa-stack-1x "></i></span>link2</a></li>
-                            </ul>
-                        </li>
-                        <li>
-                            <a href="#"><span class="fa-stack fa-lg pull-left"><i class="fa fa-terminal fa-stack-1x "></i></span>CONSOLE</a>
-                        </li>
-                        <li>
-                            <a href="#"> <span class="fa-stack fa-lg pull-left"><i class="fa fa-cogs fa-stack-1x "></i></span>CONFIGURATION</a>
-                        </li>
-
-                    </ul>
-                    <img src="images/pmon-logo.png" alt="">
-
-                </div>
-            </aside>
-        <main class="py-4 d-flex flex-colum h-100">
+        <main class="py-5">
             @yield('content')
         </main>
         <!-- Footer -->
         <!-- Footer -->
-        <footer class="py-3 fixed-bottom" style="background:#aaaaaa">
+        <footer class="fixed-bottom" style="background:#aaaaaa">
         <div class="container">
             <span class="text-muted">PMON 2021</span>
         </div>
