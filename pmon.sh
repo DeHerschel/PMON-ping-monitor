@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-source /var/lib/pmon/general
+source ./lib/general
 unset targetopt;
 unset IFC;
 unset VERBOSE;
@@ -9,7 +9,7 @@ LOG="/var/log/pmon.log";
 DATE="$(date)";
 ERRLOG="/var/log/pmon.err.log";
 VERBOSE=3
-#########################
+########################
 #       MAIN            #
 #########################
 
@@ -66,6 +66,7 @@ function argParse() {
 		shift;
 	done;
 }
+
 function main() {
 	argParse "$@";
 	isRoot;
@@ -85,36 +86,9 @@ function main() {
 			scan=$(arp-scan -l);
 		}
 		for mac in ${MACS[@]}; do
-			{ host=$(macHaveIp "$mac") && echo $host && pingHost $host; } || ipNotFoundMsg $MAC && ipNotFoundMsg $MAC >> $ERRLOG >> $LOG;
+			{ host=$(macHaveIp "$MAC") &&	pingHost $host; } || ipNotFoundMsg $MAC && ipNotFoundMsg $MAC >> $ERRLOG >> $LOG;
 		done
 	fi
 	keyEventListener;
 }
 main $@;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-
-
-

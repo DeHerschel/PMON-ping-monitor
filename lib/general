@@ -25,11 +25,8 @@ function isMac() { #valid mac?
 	[ "$?" == 0 ] || return 1;
 }
 function isIp() { 
-	if [[ $1 =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-		return 0
-	else
-		return 1
-	fi
+	echo $1 | egrep "^^([1-9].){3}([1-9])$"  > /dev/null
+	[ "$?" == 0 ] || return 1;
 }
 function macHaveIp() {
 	local ip=$(echo "$scan" | grep "$1" | awk '{print $1}');
@@ -37,7 +34,7 @@ function macHaveIp() {
 	if  [ $ip_comp == 0 ]; then #Not in arp table
 		return 2;
 	fi
-		echo $ip;
+	echo $ip;
 }
 function keyEventListener() {
 	while true; do

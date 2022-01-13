@@ -55,7 +55,7 @@ NoIfc_msg() {
 invalidmacMsg() {
 	case $VERBOSE in
 	1) 
-		echo "$(date) mac ${1} is invalid!" >> $ERRLOG;;
+		echo "$DATE: mac ${1} is invalid!" >> $ERRLOG;;
 	2)
 		echo "mac ${1} is invalid!";;
 	[345])
@@ -79,6 +79,45 @@ pingMsg() {
 			echo -e "${line}"; echo $line >> $LOG;; 
 	esac
 }
+hostdownMsg() {
+	case $VERBOSE in
+		0)
+			;;
+		1)
+			echo "${DATE}: WARNING! THE HOST IS DOWN OR REFUSING THE PING STARTING ERROR MODE $line" >> $LOG;;
+		2)
+			echo -e "${HOST}: ";
+			echo "WARNING! THE HOST IS DOWN OR REFUSING THE PING STARTING ERROR MODE";
+			echo -e "${line}";;
+		3)
+			echo -e "${HOST}: ";
+			echo "WARNING! THE HOST IS DOWN OR REFUSING THE PING STARTING ERROR MODE";
+			echo "${DATE}: WARNING! THE HOST IS DOWN OR REFUSING THE PING STARTING ERROR MODE" >> $LOG;
+			echo -e "${DATE}: ${line}" >> "$LOG";;
+		[45])
+			echo -e "${HOST}: ";
+			echo "WARNING! THE HOST IS DOWN OR REFUSING THE PING STARTING ERROR MODE";
+			echo -e "${line}\n"
+			echo "${DATE}: WARNING! THE HOST IS DOWN OR REFUSING THE PING STARTING ERROR MODE" >> $LOG;
+			echo -e "${DATE}: ${line}" >> "$LOG";;
+	esac
+}
+hostUpMsg() {
+	case $VERBOSE in
+		0)
+			;;
+		1) 
+			echo -e "${DATE} HOST IS UP" >> "$LOG";;
+		[23])
+			echo -e "${HOST}: ";
+			echo -e "\nHOST IS UP\n";
+			echo -e "${line}";;
+		[45])
+			echo -e "${HOST}: ";
+			echo -e "\nHOST IS UP\n" && echo -e "${DATE} HOST IS UP" >> "$LOG";
+			echo -e "${line}\n" && echo -e "${DATE}: ${line}" >> "$LOG";;
+	esac
+}
 waitingstableMsg() {
 		case $VERBOSE in
 		[012])
@@ -89,50 +128,11 @@ waitingstableMsg() {
 		4)
 			echo -e "${HOST}: ";
 			statsMsg;
-			echo -e "${line}" && echo -e "$(date): ${line}" >> $LOG;;
+			echo -e "${line}" && echo -e "${DATE}: ${line}" >> $LOG;;
 		5) 	
 			echo -e "${HOST}: ";
 			statsMsg;
-			echo -e "${line}"; echo "$(date): $line" >> $LOG;; 
-	esac
-}
-hostdownMsg() {
-	case $VERBOSE in
-		0)
-			;;
-		1)
-			echo "$(date): WARNING! THE HOST IS DOWN OR REFUSING THE PING STARTING ERROR MODE $line" >> $LOG;;
-		2)
-			echo -e "${HOST}: ";
-			echo "WARNING! THE HOST IS DOWN OR REFUSING THE PING STARTING ERROR MODE";
-			echo -e "${line}";;
-		3)
-			echo -e "${HOST}: ";
-			echo "WARNING! THE HOST IS DOWN OR REFUSING THE PING STARTING ERROR MODE";
-			echo "$(date): WARNING! THE HOST IS DOWN OR REFUSING THE PING STARTING ERROR MODE" >> $LOG;
-			echo -e "$(date): ${line}" >> "$LOG";;
-		[45])
-			echo -e "${HOST}: ";
-			echo "WARNING! THE HOST IS DOWN OR REFUSING THE PING STARTING ERROR MODE";
-			echo -e "${line}\n"
-			echo "$(date): WARNING! THE HOST IS DOWN OR REFUSING THE PING STARTING ERROR MODE" >> $LOG;
-			echo -e "$(date): ${line}" >> "$LOG";;
-	esac
-}
-hostUpMsg() {
-	case $VERBOSE in
-		0)
-			;;
-		1) 
-			echo -e "$(date) HOST IS UP" >> "$LOG";;
-		[23])
-			echo -e "${HOST}: ";
-			echo -e "\nHOST IS UP\n";
-			echo -e "${line}";;
-		[45])
-			echo -e "${HOST}: ";
-			echo -e "\nHOST IS UP\n" && echo -e "$(date) HOST IS UP" >> "$LOG";
-			echo -e "${line}\n" && echo -e "$(date): ${line}" >> "$LOG";;
+			echo -e "${line}"; echo "${DATE}: $line" >> $LOG;; 
 	esac
 }
 hoststableMsg() {
@@ -140,19 +140,19 @@ hoststableMsg() {
 		0)
 			;;
 		1) 
-			echo -e "$(date) HOST IS STABLE. ENDING ERROR MODE" >> "$LOG";;
+			echo -e "${DATE} HOST IS STABLE. ENDING ERROR MODE" >> "$LOG";;
 		2)
 			echo -e "${HOST}: ";
 			echo -e "\nHOST IS STABLE. ENDING ERROR MODE\n";
 			echo -e "${line}";;
 		3)
 			echo -e "${HOST}: ";
-			echo -e "\nHOST IS STABLE. ENDING ERROR MODE\n" && echo -e "$(date) HOST IS STABLE. ENDING ERROR MODE" >> "$LOG";		
-			echo -e "$(date): ${line}" >> "$LOG";;
+			echo -e "\nHOST IS STABLE. ENDING ERROR MODE\n" && echo -e "${DATE} HOST IS STABLE. ENDING ERROR MODE" >> "$LOG";		
+			echo -e "${DATE}: ${line}" >> "$LOG";;
 		[45])
 			echo -e "${HOST}: ";
-			echo -e "\nHOST IS STABLE. ENDING ERROR MODE\n" && echo -e "$(date) HOST IS STABLE. ENDING ERROR MODE" >> "$LOG";
-			echo -e "${line}\n" && echo -e "$(date): ${line}" >> "$LOG";;
+			echo -e "\nHOST IS STABLE. ENDING ERROR MODE\n" && echo -e "${DATE} HOST IS STABLE. ENDING ERROR MODE" >> "$LOG";
+			echo -e "${line}\n" && echo -e "${DATE}: ${line}" >> "$LOG";;
 	esac
 }
 statsMsg() {

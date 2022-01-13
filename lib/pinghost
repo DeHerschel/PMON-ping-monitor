@@ -1,5 +1,4 @@
 #!/bin/bash
-source /var/lib/pmon/makejson
 unset HOST;
 unset PTIME;
 unset PICMP;
@@ -34,12 +33,10 @@ function getStats() {
 		PROBLEMS=$problems;
 	}
 }
-
-function pingHost() { #ARGS: HOST [nhost as a service]
+function pingHost() { #ARGS: HOST
 	local isfirstline=1;
 	local aae=0; #alive after errors
 	HOST=$1;
-	nhost=$2
 	[[ $IFC ]] && local ifcopt="-I $IFC"; 
 	ping -O $HOST $ifcopt | while read -r line; do #pingLine and read lines
 		if [[ "$line" =~ "Unreachable" ]] || [[ "$line" =~ "no answer" ]]; then
@@ -47,10 +44,8 @@ function pingHost() { #ARGS: HOST [nhost as a service]
 			aae=0;
 			[ "$ERRORMODE" -eq 1 ] && {	
 				echo -e " \e[101;1;97m WARNING: ${line}\e[m\n";
-				downJSON;
 				continue;
 			}
-			downJSON;
 			hostdownMsg;
 			ERRORMODE=1;
 		else #good answer
@@ -64,27 +59,19 @@ function pingHost() { #ARGS: HOST [nhost as a service]
 			if [ $ERRORMODE -eq 1 ]; then
 				let aae=aae+1; #count aae
 				[ "$aae" -eq 1 ] && { #first good pingLine after error
-					inestableJSON;
-					hostUpMsg;
+					hostUpMsg
 					continue;
 				}
 				[ "$aae" -eq 30 ] && { #30 good pingLine after error ends error mode
-					dataJSON
 					hoststableMsg
 					aae=0; #reset AAE
 					ERRORMODE=0;
 					continue;
 				}
-				inestableJSON;
-				waitingstableMsg;
-				continue;
 			fi
-			dataJSON
 			pingMsg
 			LAST_PICMP=$PICMP;
 		fi
 	done &
 	pingpids=(${pingpids[@]} $!);
-	echo $! >> /var/run/pmond.pids
-	HOSTDATA[PINGPID]=$!
 }
