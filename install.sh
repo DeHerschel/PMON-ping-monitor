@@ -1,7 +1,4 @@
 #!/bin/bash
-source /var/lib/pmon/general
-
-isRoot
 
 echo -ne "Intalling dependencies...\n";
 sleep 1
@@ -15,6 +12,7 @@ sleep 1
 	sleep 1;
 	apt install net-tools
 }
+
 echo 'ok'
 echo -ne "Making diresctories and moving files..\n";
 sleep 1

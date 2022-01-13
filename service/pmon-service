@@ -44,8 +44,7 @@ case "$1" in
     stop)
     if is_running; then
         echo -n "Stopping $name.."
-		kill `get_pid`
-		kill $(cat /var/run/pmond.pids)
+        kill `get_pid`
         for i in {1..10}; do
             if ! is_running; then
                 break
@@ -60,9 +59,6 @@ case "$1" in
             exit 1
         else
             echo "Stopped"
-			if [ -f "/tmp/pmon/hosts.json" ]; then
-				rm "/tmp/pmon/hosts.json";
-			fi
             if [ -f "$pid_file" ]; then
                 rm "$pid_file"
             fi

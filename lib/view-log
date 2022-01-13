@@ -1,0 +1,27 @@
+
+function viewLog() {
+	echo "
+what text editor do you want to use?
+
+1) nano (Default)
+3) Vim
+5) emacs
+4) gedit
+*) nano
+	"
+	read -rn1 editor
+	case $editor in
+		1)
+			nano "$LOG";;
+		2)
+			vi "$LOG";;
+		3)
+			vim "$LOG";;
+		4)
+		 	gedit "$LOG";;
+		5)
+			emacs "$LOG";;
+		*)
+			nano "$LOG";;
+	esac
+}

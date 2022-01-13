@@ -37,4 +37,8 @@ class HomeController extends Controller
     {
         return view('console');
     }
+    public function api()
+    {
+        return view('api');
+    }
 }
