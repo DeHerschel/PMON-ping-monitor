@@ -51,13 +51,11 @@
             </ul>
         </div>
     </div>
-
 </div>
-            <!-- <img src="images/pmon-logo.png" alt=""> -->
+<!-- <img src="images/pmon-logo.png" alt=""> -->
 @section('content')
- <script>
+<script>
     $(document).ready(function() {
-
        //$(".dial").knob();
          var color = 'green'
          $('.dial').knob({
@@ -71,9 +69,8 @@
              'readOnly':true,
              'draw' : function () { $(this.i).val(this.cv.toFixed(1) + 'ms').css('font-size', '1.2em').css('color', 'black'); }
          });
-
      });
-  </script>
+</script>
 <?php
     if ($_GET) {
         if (file_exists("/tmp/pmon/hosts.json")) {
@@ -87,51 +84,50 @@
             <div class="row">
                 <div class="col-lg-1"></div>
                 <div class="col-lg-5  align-center-host">
-                <div class="host-state" id="<?php echo $hostname ?>" style="">
-
-                <div class="wrapper">
-                <?php
-                $hostfilename = strtolower($hostname);
-                $hostfilename = "/tmp/pmon/".$hostfilename.".json";
-                $host_json = file_get_contents($hostfilename);
-                $host = json_decode($host_json);
-                ?>
-                <input type="text" class="dial <?php echo $hostname ?>" value="<?php echo $host->TIME ?>" id="<?php echo $hostname ?>" >
-                </div>
-                <h4><?php echo $host->STATE ?> <h4>
-                </div>
+                    <div class="host-state" id="<?php echo $hostname ?>" style="">
+                        <div class="wrapper">
+                            <?php
+                            $hostfilename = strtolower($hostname);
+                            $hostfilename = "/tmp/pmon/".$hostfilename.".json";
+                            $host_json = file_get_contents($hostfilename);
+                            $host = json_decode($host_json);
+                            ?>
+                            <input type="text" class="dial <?php echo $hostname ?>" value="<?php echo $host->TIME ?>" id="<?php echo $hostname ?>" >
+                        </div>
+                        <h4><?php echo $host->STATE ?> <h4>
+                    </div>
                 </div>
                 <div class="col-lg-6">
-                <div class="border-data">
-                <h3><?php if ($hosts->$hostname->DOMAIN){
-                    echo 'DOMAIN: '.$hosts->$hostname->DOMAIN;
-                }
-                else {
-                    echo 'IP: '.$hosts->$hostname->IP;
-                } ?><h3>
+                    <div class="border-data">
+                    <h3><?php if ($hosts->$hostname->DOMAIN){
+                        echo 'DOMAIN: '.$hosts->$hostname->DOMAIN;
+                    }
+                    else {
+                        echo 'IP: '.$hosts->$hostname->IP;
+                    } ?><h3>
+                    </div>
+                    <div class="border-data">
+                        <h3>
+                        <p style="display:inline; left:0;;" > DOMAIN: </p> <?php if ($hosts->$hostname->DOMAIN) { echo $hosts->$hostname->DOMAIN; } else {echo "-";} ?>
+                        </h3>
+                    </div>
+                    <div class="border-data">
+                        <h3>
+                            TTL: <?php echo $host->TTL ?>
+                        </h3>
+                    </div>
+                    <div class="border-data">
+                        <h3>
+                            ICMP_SEQ: <?php echo $host->ICMP ?>
+                        </h3>
+                    </div>
+                    <div class="border-data">
+                        <h3>
+                            PROBLEMS: <?php echo $host->PROBLEMS ?>
+                        </h3>
+                    </div>
                 </div>
-                <div class="border-data">
-                    <h3>
-                       <p style="display:inline; left:0;;" > DOMAIN: </p> <?php if ($hosts->$hostname->DOMAIN) { echo $hosts->$hostname->DOMAIN; } else {echo "-";} ?>
-                    </h3>
-                </div>
-                <div class="border-data">
-                    <h3>
-                        TTL: <?php echo $host->TTL ?>
-                    </h3>
-                </div>
-                <div class="border-data">
-                    <h3>
-                        ICMP_SEQ: <?php echo $host->ICMP ?>
-                    </h3>
-                </div>
-                <div class="border-data">
-                    <h3>
-                        PROBLEMS: <?php echo $host->PROBLEMS ?>
-                    </h3>
-                </div>
-                </div>
-                 <script>
+                <script>
                     <?php echo "host".$i ?> = "<?php echo $hostname ?>"
                     <?php echo "dataHost".$i ?> = { 'hostname': '<?php echo $hostname ?>'}
                     function <?php echo "setColorHost".$i?>(){
