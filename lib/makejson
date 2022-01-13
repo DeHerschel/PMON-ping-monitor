@@ -1,0 +1,32 @@
+#!/bin/bash
+
+function dataJSON() {
+	hostJson="/tmp/pmon/host${nhost}.json";
+	echo "{ 
+		\"TIME\":\"${PTIME}\",
+		\"TTL\":\"${PTTL}\",
+		\"ICMP\":\"${PICMP}\",
+		\"PROBLEMS\":\"${PROBLEMS}\",
+		\"STATE\":\"${STATE}\"
+	}" > $hostJson;
+}
+function downJSON() {
+	hostJson="/tmp/pmon/host${nhost}.json";
+	echo "{ 
+		\"TIME\":\"\",
+		\"TTL\":\"\",
+		\"ICMP\":\"\",
+		\"PROBLEMS\":\"\",
+		\"STATE\":\"DOWN\"
+	}" > $hostJson;
+}
+function inestableJSON() {
+	hostJson="/tmp/pmon/host${nhost}.json";
+	echo "{ 
+		\"TIME\":\"${PTIME}\",
+		\"TTL\":\"${PTTL}\",
+		\"ICMP\":\"${PICMP}\",
+		\"PROBLEMS\":\"${PROBLEMS}\",
+		\"STATE\":\"INESTABLE\"
+	}" > $hostJson;
+}

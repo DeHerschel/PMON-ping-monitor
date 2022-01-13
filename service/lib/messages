@@ -1,0 +1,161 @@
+#!/bin/bash
+
+################################
+#         MESSAGES             #
+################################
+ipNotFoundMsg() {
+	case $VERBOSE in
+	1) 
+		echo -e "\n########## IP NOT FOUND FOR MAC ${1} ##########\n" >> $ERRLOG;;
+	2)
+		echo -e "\n########## IP NOT FOUND FOR MAC ${1} ##########\n";;
+	[345])
+		echo -e "\n########## IP NOT FOUND FOR MAC ${1} ##########\n" && echo -e "\n########## IP NOT FOUND FOR MAC ${1} ##########\n" > $LOG;;
+	esac
+}
+usageMsg() {
+	echo "	
+Usage: pmon [options] [MAC(s)] OR pmon [options] -t [HOST]
+Run pmon -h or pmon --help to view more information
+			";
+	exit 2;
+}
+helpMsg() {
+	echo "Usage: pmon [options] [MAC(s)] OR pmon [options] -t [HOST]
+Options:
+	-I			Interface to use
+	-v --verbosity		Verbosity level [0-5] (3 DEFAULT)
+						0) No log - no stdout
+						1) Log down, up and stable - no stdout
+						2) No log - stdout down, up, stable
+						3) Log down, up and stable - stdout down, up, stable, stats 
+						4) Log down, up and stable - stdout down, up, stable, stats, line 
+						5) Log all - stdout all THIS WILL DIRTY YOUR LOG
+	-t [IP] [HOST]		Target host 
+	-h --help		Show this message
+	";
+	exit 0;
+}
+norootMsg() {
+	echo "Error! Not root.";
+	exit 2; 
+}
+verbosityError() {
+	echo "Error: verbosity mode need a number between 0 and 5";
+	usageMsg;
+}
+nomac_msg() {
+	echo "Error: No MAC(s) introduced";
+}
+
+NoIfc_msg() {
+	echo "error. No such interface";
+}
+
+invalidmacMsg() {
+	case $VERBOSE in
+	1) 
+		echo "$(date) mac ${1} is invalid!" >> $ERRLOG;;
+	2)
+		echo "mac ${1} is invalid!";;
+	[345])
+		echo "mac ${1} is invalid!" && echo "mac ${1} is invalid!" > $LOG;;
+	esac
+}
+pingMsg() {
+	case $VERBOSE in
+		[012])
+			;;
+		3)
+			echo -e "${HOST}: ";
+			statsMsg;;
+		4)
+			echo -e "${HOST}: ";
+			statsMsg;
+			echo -e "${line}";;
+		5) 	
+			echo -e "${HOST}: ";
+			statsMsg;
+			echo -e "${line}"; echo $line >> $LOG;; 
+	esac
+}
+waitingstableMsg() {
+		case $VERBOSE in
+		[012])
+			;;
+		3)
+			echo -e "${HOST}: ";
+			statsMsg;;
+		4)
+			echo -e "${HOST}: ";
+			statsMsg;
+			echo -e "${line}" && echo -e "$(date): ${line}" >> $LOG;;
+		5) 	
+			echo -e "${HOST}: ";
+			statsMsg;
+			echo -e "${line}"; echo "$(date): $line" >> $LOG;; 
+	esac
+}
+hostdownMsg() {
+	case $VERBOSE in
+		0)
+			;;
+		1)
+			echo "$(date): WARNING! THE HOST IS DOWN OR REFUSING THE PING STARTING ERROR MODE $line" >> $LOG;;
+		2)
+			echo -e "${HOST}: ";
+			echo "WARNING! THE HOST IS DOWN OR REFUSING THE PING STARTING ERROR MODE";
+			echo -e "${line}";;
+		3)
+			echo -e "${HOST}: ";
+			echo "WARNING! THE HOST IS DOWN OR REFUSING THE PING STARTING ERROR MODE";
+			echo "$(date): WARNING! THE HOST IS DOWN OR REFUSING THE PING STARTING ERROR MODE" >> $LOG;
+			echo -e "$(date): ${line}" >> "$LOG";;
+		[45])
+			echo -e "${HOST}: ";
+			echo "WARNING! THE HOST IS DOWN OR REFUSING THE PING STARTING ERROR MODE";
+			echo -e "${line}\n"
+			echo "$(date): WARNING! THE HOST IS DOWN OR REFUSING THE PING STARTING ERROR MODE" >> $LOG;
+			echo -e "$(date): ${line}" >> "$LOG";;
+	esac
+}
+hostUpMsg() {
+	case $VERBOSE in
+		0)
+			;;
+		1) 
+			echo -e "$(date) HOST IS UP" >> "$LOG";;
+		[23])
+			echo -e "${HOST}: ";
+			echo -e "\nHOST IS UP\n";
+			echo -e "${line}";;
+		[45])
+			echo -e "${HOST}: ";
+			echo -e "\nHOST IS UP\n" && echo -e "$(date) HOST IS UP" >> "$LOG";
+			echo -e "${line}\n" && echo -e "$(date): ${line}" >> "$LOG";;
+	esac
+}
+hoststableMsg() {
+	case $VERBOSE in
+		0)
+			;;
+		1) 
+			echo -e "$(date) HOST IS STABLE. ENDING ERROR MODE" >> "$LOG";;
+		2)
+			echo -e "${HOST}: ";
+			echo -e "\nHOST IS STABLE. ENDING ERROR MODE\n";
+			echo -e "${line}";;
+		3)
+			echo -e "${HOST}: ";
+			echo -e "\nHOST IS STABLE. ENDING ERROR MODE\n" && echo -e "$(date) HOST IS STABLE. ENDING ERROR MODE" >> "$LOG";		
+			echo -e "$(date): ${line}" >> "$LOG";;
+		[45])
+			echo -e "${HOST}: ";
+			echo -e "\nHOST IS STABLE. ENDING ERROR MODE\n" && echo -e "$(date) HOST IS STABLE. ENDING ERROR MODE" >> "$LOG";
+			echo -e "${line}\n" && echo -e "$(date): ${line}" >> "$LOG";;
+	esac
+}
+statsMsg() {
+	echo "TTL=$PTTL		ICMP=$PICMP		TIME=$PTIME
+STATE: $STATE 	LOST=$LOST		PROBLEMS: $PROBLEMS"
+}

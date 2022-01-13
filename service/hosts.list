@@ -1,0 +1,44 @@
+## PMON HOST LIST
+# ADD HOSTS IN A LINE EACH ONE
+
+# FOR EXAMPLE:
+#8.8.8.8
+#1.1.1.1
+#192.168.1.1
+#www.google.com
+
+# IF YOU WANT TO PUT A MAC
+# YOU CAN PUT IT BY ADDING
+# 'M-' AS A PREFIX AHEAD THE MAC
+# FOR EXAMPLE:
+
+#M-AA:AA:AA:AA:AA:AA
+
+# MACS MUST BE BEFORE HOSTS
+
+8.8.8.8
+
+1.1.1.1
+
+google.com
+
+2.2.2.2
+
+M-3c:17:10:55:ef:08
+
+4.4.4.4
+
+7.7.7.7
+
+192.168.1.1
+
+6.6.6.6
+
+
+
+
+
+
+
+
+# END

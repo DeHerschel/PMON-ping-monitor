@@ -1,0 +1,74 @@
+#!/bin/bash
+unset HOSTFILE;
+unset MAC;
+unset MACS;
+unset HOST;
+unset HOSTS;
+unset IFC;
+source /var/lib/pmon/general;
+source /etc/pmon/pmon.conf
+MACS=();
+HOSTS="/tmp/pmon/hosts.json"
+c=1;
+if [ ! -d "/tmp/pmon" ]; then
+	mkdir /tmp/pmon
+fi
+echo "{" >> $HOSTS;
+while read -r line; do
+	declare -A HOSTDATA;
+	if [[ ! $line ]] || [[ $line =~ '#' ]]; then
+		continue;
+	fi
+	if [[ $line  =~ 'M-' ]]; then
+		scan=$(arp-scan -l)
+		MAC=${line:2};
+		isMac "$MAC" || { invalidmacMsg "$MAC" && exit 2; }
+		HOST_=$(macHaveIp "$MAC") || ipNotFoundMsg $MAC;
+		HOSTDATA[IP]="$HOST_"
+		HOSTDATA[mac]="$MAC";
+		HOSTDATA[host]="HOST$c";
+		HOSTDATA[domain]=""
+		echo $HOST_
+		pingHost $HOST_ $c
+		echo "	\"HOST$c\":{ 
+		\"HOST\":\"${HOSTDATA[host]}\",
+		\"IP\":\"${HOSTDATA[IP]}\",
+		\"DOMAIN\":\"${HOSTDATA[domain]}\",
+		\"MAC\":\"${HOSTDATA[mac]}\",
+		\"PINGPID\":\"${HOSTDATA[PINGPID]}\"
+	}," >> $HOSTS;
+		unset HOSTDATA
+		let c=c+1
+		continue;
+	fi
+	dest=$line;
+	HOSTDATA[mac]=""
+	if isIp $dest; then
+		HOSTDATA[host]="HOST$c";  
+		HOSTDATA[IP]=$dest;
+		HOSTDATA[domain]=""
+	else
+		ip=$(nslookup $dest)
+		ip=($ip)
+		HOSTDATA[host]="HOST$c";  
+		HOSTDATA[IP]="${ip[9]}"
+		HOSTDATA[domain]="$dest"
+	fi
+	pingHost $dest $c;
+	echo "	\"HOST$c\":{ 
+		\"HOST\":\"${HOSTDATA[host]}\",
+		\"IP\":\"${HOSTDATA[IP]}\",
+		\"DOMAIN\":\"${HOSTDATA[domain]}\",
+		\"MAC\":\"${HOSTDATA[mac]}\",
+		\"PINGPID\":\"${HOSTDATA[PINGPID]}\"
+	}," >> $HOSTS;
+	unset HOSTDATA
+	let c=c+1
+done < $HOSTSFILE;
+sed -i '$ s/.$//' $HOSTS;
+echo "}" >> $HOSTS;
+#listen
+while true; do
+	continue;
+done;
+
