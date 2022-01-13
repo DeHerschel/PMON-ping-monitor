@@ -1,0 +1,11 @@
+{
+	"sqltools.connections": [
+		{
+			"previewLimit": 10000,
+			"driver": "SQLite",
+			"database": "/etc/pmon/pmon.sqlite",
+			"name": "pmon"
+		}
+	],
+	"sqltools.useNodeRuntime": true
+}
