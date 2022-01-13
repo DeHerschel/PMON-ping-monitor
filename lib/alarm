@@ -1,4 +1,0 @@
-while true; do
-	echo -ne '\007'
-	sleep 0.5;
-done
